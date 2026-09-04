@@ -3,1676 +3,1567 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>효정 노무사 공부 진도율</title>
+<title>치유농업사 활동실적 조사</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <style>
-  :root{
-    --paper: #EFF3F0;
-    --paper-line: rgba(27,43,41,0.07);
-    --card: #FFFFFF;
-    --ink: #1B2B29;
-    --ink-soft: #5B6C69;
-    --line: #D8E0DC;
-    --progress: #2F6F4F;
-    --progress-soft: #DCEBE3;
-    --goal: #D98E3B;
-    --goal-soft: #F6E7D2;
-    --behind: #C4573B;
-    --behind-soft: #F5DED7;
-    --radius: 14px;
+  :root {
+    --soil: #8A6D1F;
+    --soil-dark: #5F4A12;
+    --leaf: #D4A93B;
+    --cream: #FBEFC8;
+    --card: #FFFDF5;
+    --line: #E8D89A;
+    --ink: #40371B;
+    --ink-soft: #7A6A3A;
+    --gold: #B9791F;
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:
-      linear-gradient(var(--paper-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px),
-      var(--paper);
-    background-size: 28px 28px;
-    color:var(--ink);
-    font-family:'IBM Plex Sans KR', sans-serif;
-    -webkit-font-smoothing:antialiased;
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    color: var(--ink);
+    padding: 32px 16px 64px;
   }
-  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 80px;}
-  h1,h2,h3{font-family:'Source Serif 4', serif; margin:0; letter-spacing:-0.01em;}
-  .app-title{font-size:26px; font-weight:600;}
-  .app-sub{color:var(--ink-soft); font-size:14px; margin-top:4px;}
-  .motivation-quote{
-    font-family:'IBM Plex Sans KR', sans-serif; font-weight:500; font-size:15px; color:#8A6D00;
-    padding:12px 16px; margin-bottom:22px; border-left:3px solid var(--goal); background:var(--goal-soft);
-    border-radius:0 8px 8px 0; line-height:1.5;
-  }
-  .mono{font-family:'IBM Plex Mono', monospace;}
+  .wrap { max-width: 620px; margin: 0 auto; }
+  .wrap-wide { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 
-  .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:22px;
+  .cta-banner {
+    background: #F9D9D3;
+    color: #8A2E1F;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.6;
+    text-align: center;
   }
-  .stack{display:flex; flex-direction:column; gap:16px;}
-  .review-hero-card{background:#FFFBEB; border-color:#FFE082;}
-  .row{display:flex; gap:12px; flex-wrap:wrap;}
-  .row > *{flex:1; min-width:140px;}
+  .masthead {
+    border-bottom: 2px solid var(--soil);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+  .masthead .eyebrow {
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    margin: 0 0 6px;
+  }
+  .masthead h1 {
+    font-family: "Black Han Sans", "Noto Sans KR", sans-serif;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    margin: 0 0 8px;
+    color: var(--soil-dark);
+  }
+  .masthead p {
+    margin: 0;
 
-  label{font-size:13px; color:var(--ink-soft); display:block; margin-bottom:6px;}
-  input[type=date], input[type=text], input[type=number], select{
-    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
-    font-size:15px; font-family:'IBM Plex Sans KR', sans-serif; background:#FBFCFB; color:var(--ink);
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
   }
-  input:focus, select:focus{outline:2px solid var(--progress); outline-offset:1px;}
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--soil);
+    border-color: var(--soil);
+    color: #fff;
+    font-weight: 600;
+  }
+  .panel { display: none; }
+  .panel.show { display: block; }
 
-  button{
-    font-family:'IBM Plex Sans KR', sans-serif; font-weight:600; font-size:14px;
-    border:none; border-radius:8px; padding:11px 18px; cursor:pointer;
-    background:var(--progress); color:#fff;
-  }
-  button:hover{filter:brightness(1.06);}
-  button.ghost{background:transparent; color:var(--progress); border:1px solid var(--progress);}
-  button.subtle{background:transparent; color:var(--ink-soft); border:1px solid var(--line); font-weight:500;}
-  button.danger-text{background:none; color:var(--behind); font-weight:500; padding:4px 8px;}
+  .sub-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .sub-tab {
+    padding: 8px 14px;
 
-  .subject-row{display:flex; gap:10px; align-items:end;}
-  .subject-row .name{flex:2;} .subject-row .pages{flex:1;}
-  .subject-row button{padding:10px 12px;}
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    background: #fff;
+  }
+  .sub-tab.active {
+    background: var(--soil-dark);
+    border-color: var(--soil-dark);
+    color: #fff;
+    font-weight: 600;
+  }
+  .subpanel { display: none; }
+  .subpanel.show { display: block; }
 
-  .top-bar{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:26px; flex-wrap:wrap;}
-  .dday{
-    font-family:'IBM Plex Mono', monospace; font-size:15px; background:var(--card);
-    border:1px solid var(--line); border-radius:20px; padding:7px 14px; white-space:nowrap;
-    transition:background .3s ease, color .3s ease, border-color .3s ease;
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px 22px;
   }
-  .dday.dday-soon{background:#FFF3E0; border-color:#FFB74D; color:#B26A00; font-weight:700;}
-  .dday.dday-urgent{background:#FDECEA; border-color:#E0483C; color:#C13A2E; font-weight:700;}
-  .dday.dday-critical{
-    background:#E0483C; border-color:#E0483C; color:#fff; font-weight:800;
-    animation:dday-pulse 1.4s ease-in-out infinite;
-  }
-  @keyframes dday-pulse{
-    0%, 100%{ box-shadow:0 0 0 0 rgba(224,72,60,0.5); }
-    50%{ box-shadow:0 0 0 6px rgba(224,72,60,0); }
-  }
-
-  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
-  .tabs-nav{display:flex; align-items:center; gap:8px; margin-bottom:18px;}
-  .tabs-nav .tabs{margin-bottom:0; flex:1;}
-  .tab-arrow{
-    flex:0 0 auto; width:34px; height:34px; padding:0; border-radius:50%;
-    background:var(--card); color:var(--ink); border:1px solid var(--line);
-    font-size:17px; line-height:1; display:flex; align-items:center; justify-content:center;
-  }
-  .tab-arrow:disabled{opacity:0.35; cursor:default;}
-  .add-subject-inline{display:flex; gap:8px; margin-bottom:18px; margin-top:-10px;}
-  .add-subject-inline input{flex:1; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; font-family:'IBM Plex Sans KR', sans-serif; background:#FBFCFB;}
-  .add-subject-inline button{padding:9px 16px; font-size:13px;}
-  .subject-pages-edit{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
-  .subject-pages-edit label{margin-bottom:0; font-size:13px; color:var(--ink-soft); white-space:nowrap;}
-  .subject-pages-edit input{width:110px;}
-
-  .subject-edit-row{
-    display:flex; align-items:center; gap:10px; flex-wrap:nowrap;
-    padding:10px 12px; border-radius:10px; background:#FAFBFA; border:1px solid var(--line);
-  }
-  .subject-edit-row .ser-name{flex:1 1 auto; min-width:0; font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .ser-reorder{display:flex; flex-direction:column; gap:1px; flex:0 0 auto;}
-  .ser-move{padding:1px 6px; font-size:9px; line-height:1.4; background:var(--card); color:var(--ink-soft); border:1px solid var(--line); border-radius:4px;}
-  .ser-move:disabled{opacity:0.3;}
-  .ser-name-input{flex:1 1 auto; min-width:64px; font-weight:600; font-size:14px; padding:7px 8px;}
-  .ser-field-inline{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
-  .ser-field-inline label{margin-bottom:0; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
-  .ser-field-inline input{width:64px; padding:7px 8px; font-size:14px;}
-  .subject-edit-row .ser-delete{flex:0 0 auto; white-space:nowrap; font-size:12px;}
-  .tab{
-    padding:8px 16px; border-radius:20px; border:1px solid var(--line); background:var(--card);
-    font-size:14px; font-weight:500; cursor:pointer; color:var(--ink-soft);
-  }
-  .tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
-
-  .hero{display:grid; grid-template-columns: 1.1fr 1fr; gap:18px;}
-  @media (max-width:680px){ .hero{grid-template-columns:1fr;} }
-
-  .goal-header{display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between;}
-  .goal-header-text{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;}
-  .goal-pct-ring{
-    flex:0 0 auto; width:56px; height:56px; border-radius:50%;
-    background:conic-gradient(#E0483C calc(var(--pct) * 1%), #FBE2DE 0);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .goal-pct-ring span{
-    width:44px; height:44px; border-radius:50%; background:var(--card);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:700; color:#E0483C;
-  }
-  .goal-num{font-size:52px; font-weight:600; line-height:1; color:var(--goal);}
-  .goal-label{font-size:14px; color:var(--ink-soft); margin-top:10px;}
-  .goal-range{font-family:'IBM Plex Sans KR', sans-serif; font-size:28px; color:var(--goal); font-weight:700; line-height:1;}
-  .carry-note{font-size:12px; color:var(--ink-soft); margin-top:12px; line-height:1.5;}
-  .status-line{margin-top:14px; font-size:15px; padding:10px 14px; border-radius:10px; line-height:1.5;}
-  .status-subtext{font-size:12px; opacity:0.85;}
-  .status-ahead{background:var(--progress-soft); color:var(--progress);}
-  .status-behind{background:var(--behind-soft); color:var(--behind);}
-  .status-ontrack{background:#EEF2F5; color:var(--ink-soft);}
-
-  .ruler{margin-top:18px;}
-  .ruler-track{position:relative; height:34px; background:#F1F3F1; border-radius:8px; overflow:hidden; border:1px solid var(--line);}
-  .ruler-fill{position:absolute; top:0; left:0; bottom:0; background:var(--progress); border-radius:8px 0 0 8px; transition:width .4s ease;}
-  .ruler-ideal-mark{position:absolute; top:0; bottom:0; width:2px; background:var(--goal);}
-  .ruler-ticks{display:flex; justify-content:space-between; font-size:11px; color:var(--ink-soft); margin-top:4px; font-family:'IBM Plex Mono', monospace;}
-  .ruler-round-labels{position:relative; height:14px; margin-top:4px;}
-  .ruler-round-labels span{position:absolute; transform:translateX(-50%); font-size:10px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; white-space:nowrap;}
-  .ruler-legend{display:flex; gap:16px; font-size:12px; color:var(--ink-soft); margin-top:8px;}
-  .subject-progress-block{padding-bottom:16px; border-bottom:1px solid var(--line);}
-  .subject-progress-block:last-child{padding-bottom:0; border-bottom:none;}
-  .spb-name{font-weight:600; font-size:15px; margin-bottom:6px;}
-  .spb-name-row{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; flex-wrap:wrap;}
-  .spb-name-row .spb-name{margin-bottom:0;}
-  .spb-current-page{
-    font-family:'IBM Plex Sans KR', sans-serif; font-size:22px; font-weight:700; color:var(--goal);
-    display:inline-flex; align-items:baseline; gap:6px; flex-wrap:wrap;
-  }
-  .spb-page-label{font-size:12px; font-weight:600; color:var(--ink-soft);}
-  .spb-achieve-rate{font-family:'IBM Plex Sans KR', sans-serif; font-size:13px; font-weight:600; color:var(--ink-soft); margin-left:2px;}
-
-  .subject-progress-block.goal-achieved,
-  .subject-progress-block.spb-ontrack{
-    background: #FFF8E1; border-radius: var(--radius);
-    padding: 14px; border: 1px solid #FFD54F;
-    animation: achieve-pop .35s ease;
-  }
-  .goal-achieved-badge{
-    display: inline-block; background: linear-gradient(135deg, #FFD54F, #FFB300); color: #5C4200;
-    font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
-    margin-bottom: 8px; box-shadow: 0 2px 10px rgba(255, 179, 0, 0.45);
-  }
-  @keyframes achieve-pop{
-    0%{ transform: scale(0.97); }
-    50%{ transform: scale(1.01); }
-    100%{ transform: scale(1); }
-  }
-  .spb-pace{font-weight:500; font-size:12px; color:var(--ink-soft);}
-  .sub-metric-label{font-size:11px; color:var(--ink-soft); margin-top:14px; margin-bottom:2px; font-weight:600;}
-  .subject-progress-grid{display:grid; grid-template-columns:1fr 1fr; gap:22px 28px;}
-  @media (max-width:680px){ .subject-progress-grid{grid-template-columns:1fr;} }
-  .subject-progress-grid .subject-progress-block{border-bottom:none; padding-bottom:0;}
-  .subject-progress-grid .subject-progress-block.goal-achieved,
-  .subject-progress-grid .subject-progress-block.spb-ontrack{padding-bottom:14px;}
-
-  .today-compact-list{display:flex; flex-direction:column; gap:10px;}
-  .today-compact-row{
-    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-    padding:10px 12px; border-radius:10px; background:#FAFBFA; border:1px solid var(--line);
-    transition:background .3s ease, border-color .3s ease;
-  }
-  .today-compact-row.tcr-achieved{
-    background:#FFF8E1; border-color:#FFD54F;
-    animation:achieve-pop .35s ease;
-  }
-  .tcr-check{
-    display:inline-flex; align-items:center; justify-content:center;
-    width:16px; height:16px; border-radius:50%; background:#FFB300; color:#fff;
-    font-size:10px; font-weight:700; margin-left:2px; vertical-align:middle;
-  }
-  .tcr-name{font-weight:600; font-size:13px; flex:0 0 78px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .tcr-metric{display:flex; align-items:center; gap:6px; flex:1; min-width:110px;}
-  .tcr-label{font-size:11px; color:var(--ink-soft); flex:0 0 auto; white-space:nowrap;}
-  .tcr-bar-track{flex:1; height:6px; background:#EDF0EE; border-radius:3px; overflow:hidden;}
-  .tcr-bar-fill{height:100%; border-radius:3px;}
-  .tcr-pct{font-family:'IBM Plex Mono', monospace; font-size:12px; font-weight:600; flex:0 0 34px; text-align:right;}
-  .ruler-round-mark{position:absolute; top:0; bottom:0; width:1px; background:rgba(27,43,41,0.28); z-index:1;}
-  .dot{width:9px; height:9px; border-radius:2px; display:inline-block; margin-right:5px; vertical-align:-1px;}
-
-  .pct-big{font-size:15px; color:var(--ink-soft); margin-top:2px;}
-  .pct-big b{color:var(--ink); font-size:17px;}
-  .ideal-line{font-size:12px; color:var(--goal); margin-top:4px; font-weight:600;}
-
-  .log-form{display:flex; flex-direction:column; gap:12px;}
-  .log-form > div{width:100%;}
-  .log-form button{width:100%;}
-
-  .log-list{margin-top:14px; display:flex; flex-direction:column; gap:6px; max-height:220px; overflow:auto;}
-  .log-item{display:flex; justify-content:space-between; align-items:center; font-size:14px; padding:8px 10px; border-radius:8px; background:#FAFBFA;}
-  .log-item-actions{display:flex; align-items:center; gap:2px; flex-shrink:0;}
-  .log-item-actions .link-btn{padding:4px 6px;}
-  .log-item .d{color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; font-size:13px;}
-  .log-form-inline{display:flex; gap:8px; margin-top:12px;}
-  .log-form-inline input{flex:1; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; font-family:'IBM Plex Sans KR', sans-serif; background:#FBFCFB;}
-  .log-form-inline button{flex:0 0 auto; padding:9px 16px; font-size:13px;}
-  .mini-log-list{margin-top:10px; display:flex; flex-direction:column; gap:5px; max-height:140px; overflow:auto;}
-  .mini-log-list .log-item{font-size:13px; padding:6px 9px;}
-
-  .empty{text-align:center; padding:60px 20px; color:var(--ink-soft);}
-  .empty h2{color:var(--ink); font-size:22px; margin-bottom:10px;}
-
-  .section-title{font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:10px;}
-  .day-count-badge{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--progress); background:var(--progress-soft); padding:2px 8px; border-radius:10px; font-weight:600;}
-
-  .summary-stats{display:flex; flex-direction:column; gap:14px;}
-  .summary-warning{
-    font-size:14px; font-weight:700; color:#fff; background:#E0483C;
-    padding:12px 16px; border-radius:10px; text-align:center;
-    animation:dday-pulse 1.6s ease-in-out infinite;
-  }
-  .summary-streak{
-    font-size:22px; font-weight:700; color:var(--ink);
-    background:var(--goal-soft); padding:12px 16px; border-radius:10px; text-align:center;
-  }
-  .summary-streak-num{font-family:'IBM Plex Mono', monospace; color:var(--goal); font-size:28px;}
-  .summary-streak-milestone{
-    background:linear-gradient(135deg, #FFD54F, #FFB300); color:#5C4200;
-    box-shadow:0 4px 16px rgba(255,179,0,0.45); animation:achieve-pop .4s ease;
-  }
-  .summary-streak-milestone .summary-streak-num{color:#5C4200;}
-  .summary-totals{
-    display:flex; flex-direction:column; gap:8px; align-items:center;
-    background:#FAFBFA; border:1px solid var(--line); border-radius:10px; padding:14px 16px;
-  }
-  .summary-total-pages{font-size:14px; color:var(--ink);}
-  .summary-total-pages b{font-family:'IBM Plex Mono', monospace; font-size:22px; color:var(--progress);}
-  .summary-compare{font-size:13px; color:var(--ink-soft);}
-  .summary-compare-up{color:var(--progress); font-weight:600;}
-  .summary-compare-down{color:var(--behind); font-weight:600;}
-  .summary-eta-list{display:flex; flex-direction:column; gap:8px;}
-  .summary-eta-row{font-size:13px; color:var(--ink); padding:8px 10px; background:#FAFBFA; border-radius:8px; border:1px solid var(--line);}
-  .summary-eta-good{color:var(--progress); font-weight:600;}
-  .summary-eta-bad{color:var(--behind); font-weight:600;}
-  .weekday-badge{font-weight:600; color:var(--ink);}
-
-  .confetti-container{position:fixed; inset:0; pointer-events:none; z-index:2000; overflow:hidden;}
-  .confetti-piece{
-    position:absolute; top:-20px; width:8px; height:14px; opacity:0.9; border-radius:2px;
-    animation-name:confetti-fall; animation-timing-function:ease-in; animation-fill-mode:forwards;
-  }
-  @keyframes confetti-fall{
-    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
-    100%{ transform:translateY(105vh) rotate(var(--rot, 360deg)); opacity:0; }
+  .card + .card { margin-top: 16px; }
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--soil-dark);
+    margin-bottom: 6px;
   }
 
-  .view-switch{display:flex; gap:8px; margin-bottom:20px;}
-  .view-switch-btn{
-    flex:1; padding:12px; border-radius:10px; border:1px solid var(--line); background:var(--card);
-    font-size:14px; font-weight:600; color:var(--ink-soft); cursor:pointer;
+  input[type=text], input[type=password], textarea, select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    background: #fff;
   }
-  .view-switch-btn.active{background:var(--ink); color:#fff; border-color:var(--ink);}
-
-  .review-group-title{font-size:14px; font-weight:600; margin-bottom:8px;}
-  .review-group-title .rd{font-weight:500; color:var(--ink-soft); font-size:12px; font-family:'IBM Plex Mono', monospace;}
-  .review-item{
-    display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:10px;
-    background:#FAFBFA; border:1px solid var(--line); margin-bottom:8px;
-    transition:background .25s ease, border-color .25s ease;
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--soil);
   }
-  .review-item input[type=checkbox]{width:20px; height:20px; flex-shrink:0; accent-color:#E0483C; cursor:pointer;}
-  .review-item label{margin-bottom:0; font-size:14px; color:var(--ink); flex:1; cursor:pointer;}
-  .review-item.checked{
-    background:#FDECEA; border-color:#E0483C;
-    animation:achieve-pop .3s ease;
+  textarea { resize: vertical; min-height: 66px; }
+  .period-row { display: flex; align-items: center; gap: 8px; }
+  .period-row input { flex: 1; }
+  .period-row span { color: var(--ink-soft); font-size: 13px; }
+
+  .phone-row { display: flex; align-items: center; gap: 8px; }
+  .phone-row input { flex: 1; text-align: center; }
+  .phone-row input.phone-fixed { flex: 0.8; background: #F3E2A6; color: var(--ink-soft); font-weight: 600; }
+  .phone-row span { color: var(--ink-soft); font-size: 13px; }
+
+  .choice-row { display: flex; gap: 8px; }
+  .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .choice-grid .choice { padding: 9px 6px; font-size: 12px; }
+  .choice {
+    flex: 1;
+    text-align: center;
+    padding: 10px 6px;
+    border: 1.5px solid var(--line);
+
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    background: #fff;
+    transition: background 0.1s, border-color 0.1s, color 0.1s;
   }
-  .review-item.checked label{color:#B23325; font-weight:600;}
-  .review-item.checked::after{
-    content:"달성! ✓"; color:#fff; font-weight:800; font-size:11px; flex-shrink:0;
-    background:#E0483C; padding:4px 9px; border-radius:20px;
-    box-shadow:0 2px 8px rgba(224, 72, 60, 0.4);
+  .choice.selected {
+    border-color: var(--soil-dark);
+    background: var(--soil);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px #F7E8B0 inset;
   }
-  .review-empty{font-size:13px; color:var(--ink-soft); padding:4px 2px 16px;}
 
-  .review-overall-rate{font-size:14px; font-weight:600; color:var(--ink); background:var(--progress-soft); padding:10px 14px; border-radius:10px; margin-bottom:10px;}
-  .review-overall-rate b{color:var(--progress); font-family:'IBM Plex Mono', monospace; font-size:16px;}
-
-  .review-monthly-rate{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
-  .review-month-badge{
-    font-size:12px; font-weight:600; color:var(--ink); background:#FAFBFA; border:1px solid var(--line);
-    padding:6px 10px; border-radius:8px; font-family:'IBM Plex Mono', monospace;
+  .examples {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    background: #F3E2A6;
+    border-radius: 6px;
+    padding: 8px 10px;
+    line-height: 1.7;
   }
-  .review-month-badge b{color:var(--progress); margin-left:2px;}
 
-  .review-grid-legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); margin-bottom:14px;}
-  .review-grid-legend .rg-cell{width:12px; height:12px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:-2px;}
+  .btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--soil);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
 
-  .review-table{width:100%; border-collapse:collapse; font-size:12px;}
-  .review-table-wrap{max-height:480px; overflow-y:auto; border:1px solid var(--line); border-radius:8px;}
-  .review-table thead th{
-    font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--ink-soft); font-size:11px;
-    text-align:center; padding:6px 4px; border-bottom:2px solid var(--line); position:sticky; top:0; background:var(--card);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
   }
-  .review-table thead th:first-child{text-align:left;}
-  .review-table tbody td{padding:5px 4px; text-align:center; border-bottom:1px solid var(--paper-line);}
-  .review-table tbody td:first-child{
-    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); text-align:left; white-space:nowrap;
+  .btn:hover { background: var(--soil-dark); }
+  .btn:disabled { opacity: 0.6; cursor: default; }
+  .btn-secondary {
+    background: #fff; border: 1px solid var(--line); color: var(--ink-soft);
   }
-  .review-table tbody tr.review-row-today td:first-child{color:var(--progress); font-weight:700;}
-  .rg-cell{width:16px; height:16px; border-radius:3px; display:inline-block;}
-  .rg-full{background:var(--progress);}
-  .rg-partial{background:var(--goal);}
-  .rg-empty{background:#E3E7E4; border:1px solid var(--line);}
-  .rg-na{background:transparent; border:1px dashed var(--line);}
+  .btn-secondary:hover { background: #F3E2A6; }
 
-  .toast{
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
-    background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px;
-    font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.25);
-    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
-    z-index:1000; max-width:85%; text-align:center;
+  .error { color: #A33; font-size: 12px; margin-top: 4px; display: none; }
+  .invalid-border { border-color: #C1443B !important; box-shadow: 0 0 0 2px rgba(193,68,59,0.15); }
+  .invalid-group { outline: 2px solid #C1443B; outline-offset: 2px; border-radius: 8px; }
+  .pin-hint { font-size: 12px; color: var(--ink-soft); margin: 4px 0 0; }
+
+  .thanks {
+    text-align: center;
+    padding: 40px 20px;
   }
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-  .chart-wrap{height:260px; margin-top:6px;}
+  .thanks .mark {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--leaf); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; font-size: 24px;
+  }
+  .thanks h2 { font-size: 18px; margin: 0 0 8px; color: var(--soil-dark); }
+  .thanks p { font-size: 14px; color: var(--ink-soft); margin: 0 0 20px; }
 
-  .overview-list{display:flex; flex-direction:column; gap:8px;}
-  .ov-item{display:flex; align-items:center; gap:12px; font-size:14px;}
-  .ov-item .ov-name{width:90px; font-weight:600; flex-shrink:0;}
-  .ov-bar-track{flex:1; height:8px; background:#EDF0EE; border-radius:4px; overflow:hidden;}
-  .ov-bar-fill{height:100%; background:var(--progress); border-radius:4px;}
-  .ov-item .ov-pct{width:44px; text-align:right; font-family:'IBM Plex Mono', monospace; font-size:13px; flex-shrink:0;}
-  .ov-item .ov-detail{width:76px; text-align:right; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); flex-shrink:0;}
+  .toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
 
-  .hidden{display:none !important;}
-  .link-btn{background:none; border:none; color:var(--progress); font-size:13px; font-weight:600; cursor:pointer; padding:0;}
+  }
+  .toolbar .count { font-size: 13px; color: var(--ink-soft); }
+  .refresh-btn {
+    background: transparent; border: 1px solid var(--line);
+    border-radius: 6px; padding: 7px 12px; font-size: 12px;
+    cursor: pointer; color: var(--soil-dark);
+  }
+
+  .delete-row-btn {
+    background: #fff; border: 1px solid #C1443B;
+    border-radius: 6px; padding: 4px 10px; font-size: 11px;
+    cursor: pointer; color: #C1443B; font-weight: 600;
+    white-space: nowrap;
+  }
+  .delete-row-btn:hover { background: #C1443B; color: #fff; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--soil);
+    color: #fff;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  td.name { font-weight: 600; white-space: nowrap; }
+  td.remark { text-align: center; color: var(--gold); font-weight: 600; }
+  .table-wrap { overflow-x: auto; border-radius: 8px; }
+
+  .empty-row td {
+    text-align: center;
+    color: var(--ink-soft);
+    padding: 28px;
+  }
+
+  .lock-note {
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 12px; color: var(--ink-soft);
+    background: #F3E2A6; border-radius: 6px; padding: 10px 12px;
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .mine-entry-card + .mine-entry-card { margin-top: 16px; }
+
+  .program-block {
+    border: 2px solid var(--leaf);
+    border-radius: 10px;
+    padding: 0 16px 14px;
+    margin-bottom: 24px;
+    position: relative;
+    background: #FFFCF2;
+  }
+  .program-block.invalid-block {
+    border-color: #C1443B;
+  }
+  .program-block .block-title {
+    font-size: 13px;
+    color: #fff;
+    background: var(--soil);
+    font-weight: 700;
+    margin: 0 -16px 14px;
+
+    padding: 8px 16px;
+    border-radius: 8px 8px 0 0;
+  }
+  .program-block.invalid-block .block-title {
+    background: #C1443B;
+  }
+  .remove-block-btn {
+    position: absolute;
+    top: 9px; right: 12px;
+    background: none; border: none;
+    color: #fff;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .add-block-btn {
+    width: 100%;
+    padding: 13px;
+    background: #C1443B;
+    border: 1px solid #A3372F;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .add-block-btn:hover { background: #A3372F; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="top-bar">
-    <div>
-      <div class="app-title">효정 노무사 공부 진도율</div>
-      <div class="app-sub" id="periodSummary">공부 기간과 과목을 먼저 설정하세요</div>
-    </div>
-    <div id="ddayBadge"></div>
+  <div class="cta-banner">향후 경남치유농업사협회 발전을 위해서 적극적으로 실적 기입 부탁드립니다!</div>
+
+  <div class="masthead">
+    <p class="eyebrow">치유농업사 활용 현황조사</p>
+    <h1>치유농업사 활동실적 조사</h1>
+    <p style="font-weight:600; color:var(--soil-dark); margin-bottom:6px;">대상기간 : 2026. 1. 1. ~ 현재까지</p>
+    <p>아래 양식에 맞춰 활용실적을 입력해 주세요. 입력하신 내용은 바로 반영됩니다.</p>
   </div>
 
-  <div id="motivationQuote" class="motivation-quote"></div>
+  <div class="tabs">
+    <div class="tab active" data-tab="form">입력하기</div>
+    <div class="tab" data-tab="mine">내 항목</div>
+    <div class="tab" data-tab="admin">전체보기</div>
+  </div>
 
-  <!-- 대시보드 -->
-  <div id="dashboardView" class="hidden stack">
+  <div class="panel show" id="panel-form">
+    <div class="card" id="form-card">
+      <div class="field">
+        <label>성명</label>
+        <input type="text" id="f-name" placeholder="예: 홍길동">
+        <p class="error" id="err-name">성명을 입력해 주세요.</p>
+      </div>
 
-    <div class="view-switch">
-      <button type="button" class="view-switch-btn active" id="viewProgressBtn">진도율</button>
-      <button type="button" class="view-switch-btn" id="viewReviewBtn">1-4-7-14 복습 체크리스트</button>
+      <div class="field">
+        <label>휴대폰번호</label>
+        <div class="phone-row">
+          <input type="text" value="010" disabled class="phone-fixed">
+          <span>-</span>
+          <input type="text" id="f-phone-1" inputmode="numeric" maxlength="4" placeholder="1234">
+          <span>-</span>
+          <input type="text" id="f-phone-2" inputmode="numeric" maxlength="4" placeholder="5678">
+
+        </div>
+        <p class="error" id="err-phone">휴대폰번호를 정확히 입력해 주세요.</p>
+      </div>
+
+      <div class="field">
+        <label>소속시군</label>
+        <input type="text" id="f-region" placeholder="예: OO시 / OO군">
+        <p class="error" id="err-region">소속시군을 입력해 주세요.</p>
+      </div>
+
+      <div class="field">
+        <label>치유농업사 취득연도</label>
+        <div class="choice-row" id="f-remark">
+          <div class="choice" data-value="2024">2024</div>
+          <div class="choice" data-value="2025">2025</div>
+          <div class="choice" data-value="2026">2026</div>
+        </div>
+      </div>
+
+      <div id="f-blocks"></div>
+      <button type="button" class="add-block-btn" id="add-block-btn">+ 활동실적 추가</button>
+
+      <div class="field">
+        <label>개인정보동의여부</label>
+        <div class="choice-row" id="f-consent">
+          <div class="choice" data-value="예">예</div>
+          <div class="choice" data-value="아니오">아니오</div>
+        </div>
+        <p class="error" id="err-consent">개인정보 수집·이용에 동의하셔야 제출할 수 있어요.</p>
+      </div>
+
+      <div class="field">
+
+        <label>수정용 비밀번호</label>
+        <input type="password" id="f-pin" placeholder="나중에 내 항목을 조회·수정할 때 쓸 비밀번호 (4자 이상)">
+        <p class="pin-hint">잊지 않게 기억해 두세요. 성명 + 이 비밀번호로만 본인 항목을 확인·수정할 수 있어요.</p>
+        <p class="error" id="err-pin">4자 이상으로 입력해 주세요.</p>
+      </div>
+
+      <button class="btn" id="submit-btn" style="margin-top:22px;">제출하기</button>
     </div>
 
-    <div id="progressTabContent" class="stack">
+    <div class="card thanks" id="thanks-card" style="display:none;">
+      <div class="mark"><i>✓</i></div>
+      <h2>제출됐어요</h2>
+      <p>실적이 반영됐습니다. 다른 항목을 이어서 입력하실 수 있어요.</p>
+      <button class="btn btn-secondary" id="again-btn" style="width:auto; padding:9px 16px; font-size:13px;">한 건 더 입력하기</button>
+    </div>
+  </div>
 
+  <div class="panel" id="panel-mine">
     <div class="card">
-      <div class="section-title">공부 현황 요약</div>
-      <div id="summaryStats" class="summary-stats"></div>
+      <div class="lock-note">본인이 입력할 때 사용한 성명과 비밀번호를 넣으면, 본인이 등록한 항목만 조회하고 수정할 수 있어요. 다른 사람의 자료는 보이지 않습니다.</div>
+      <div class="field">
+        <label>성명</label>
+        <input type="text" id="m-name" placeholder="입력할 때 사용한 성명">
+      </div>
+      <div class="field">
+        <label>비밀번호</label>
+        <input type="password" id="m-pin" placeholder="입력할 때 설정한 비밀번호">
+      </div>
+      <p class="error" id="err-mine">일치하는 항목을 찾을 수 없어요. 성명과 비밀번호를 확인해 주세요.</p>
+      <button class="btn" id="mine-lookup-btn" style="margin-top:6px;">내 항목 조회</button>
     </div>
 
-    <div class="card">
-      <div class="section-title">오늘의 목표 · <span id="todayDateLabel"></span> <span id="dayCountLabel" class="day-count-badge"></span></div>
-      <div style="max-width:220px; margin-bottom:18px;">
-        <label for="logDate">기록할 날짜 <span id="logDateWeekday" class="weekday-badge"></span></label>
-        <input type="date" id="logDate">
-      </div>
-      <div id="allGoalsList" class="subject-progress-grid"></div>
-      <div class="carry-note" style="margin-top:16px;">오늘 목표를 못 채우면, 남은 분량이 내일 목표에 자동으로 더해져요.</div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">오늘 하루 과목별 진행률</div>
-      <div id="todayProgressList" class="today-compact-list"></div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">전체 과목 통합 진행률</div>
-      <div id="subjectProgressList" class="subject-progress-grid"></div>
-    </div>
-
-    <div class="card">
-      <div class="row" style="align-items:flex-end;">
-        <div>
-          <label for="repeatCountLive">목표 회독수</label>
-          <input type="number" id="repeatCountLive" min="1">
-        </div>
-        <div>
-          <label for="startDateLive">시작일</label>
-          <input type="date" id="startDateLive">
-        </div>
-        <div>
-          <label for="endDateLive">종료일</label>
-          <input type="date" id="endDateLive">
-        </div>
-      </div>
-      <div style="display:flex; gap:10px; margin-top:14px; align-items:center; flex-wrap:wrap;">
-        <button type="button" id="recalcBtn">계산하기</button>
-        <button type="button" class="link-btn" id="exportBackupBtn">내보내기</button>
-        <button type="button" class="link-btn" id="importBackupBtn">가져오기</button>
-        <input type="file" id="importBackupFile" accept="application/json" class="hidden">
-        <button type="button" class="link-btn" id="resetDefaultBtn" style="color:var(--behind);">기본값으로 재설정</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <div class="section-title" style="margin-bottom:0;">과목별 페이지 설정</div>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <button type="button" class="link-btn" id="addTabBtn">+ 과목 추가</button>
-          <button type="button" id="applySubjectEditsBtn">적용하기</button>
-        </div>
-      </div>
-      <div class="add-subject-inline hidden" id="addSubjectInline" style="margin-bottom:14px;">
-        <input type="text" id="newSubjectName" placeholder="새 과목명 입력">
-        <button type="button" id="confirmAddSubjectBtn">추가</button>
-        <button type="button" class="subtle" id="cancelAddSubjectBtn">취소</button>
-      </div>
-      <div style="font-size:12px; color:var(--ink-soft); margin-bottom:14px; line-height:1.5;">
-        "기존 진행 페이지"는 앱을 쓰기 전에 이미 읽은 페이지 번호예요. 특정 날짜의 기록으로 남기지 않고 별도로 반영되기 때문에, 하루 만에 다 읽은 것처럼 기록에 남지 않아요. 값을 입력한 뒤 위 "적용하기"를 눌러야 반영돼요.
-      </div>
-      <div id="subjectEditList" class="subject-progress-grid"></div>
-    </div>
-
-    </div>
-
-    <div id="reviewTabContent" class="stack hidden">
-      <div class="card review-hero-card">
-        <div class="section-title">1-4-7-14 복습 체크리스트 · <span id="reviewDateLabel"></span></div>
-        <div style="font-size:13px; color:#8A6D00; margin-bottom:16px; line-height:1.5;">
-          오늘은 1일 전 · 4일 전 · 7일 전 · 14일 전에 공부하기로 계획했던 내용을 복습하는 날이에요. 실제로 그날 공부했는지와 상관없이, 원래 계획대로라면 그날 나갔어야 할 분량을 기준으로 보여줘요.
-        </div>
-        <div id="reviewChecklist" class="subject-progress-grid"></div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">전체 복습 체크리스트</div>
-        <div style="font-size:13px; color:var(--ink-soft); margin-bottom:14px; line-height:1.5;">
-          날짜별로 1·4·7·14일 전 복습을 얼마나 체크했는지 한눈에 보여줘요. 위 오늘 체크리스트와 같은 데이터라서, 체크하면 여기도 같이 채워져요. 최근 날짜가 위로 오도록 정렬했어요.
-        </div>
-        <div id="reviewOverallRate" class="review-overall-rate"></div>
-        <div id="reviewMonthlyRate" class="review-monthly-rate"></div>
-        <div class="review-grid-legend">
-          <span><span class="rg-cell rg-full"></span>전부 체크</span>
-          <span><span class="rg-cell rg-partial"></span>일부 체크</span>
-          <span><span class="rg-cell rg-empty"></span>미체크</span>
-          <span><span class="rg-cell rg-na"></span>해당 없음</span>
-        </div>
-        <div class="review-table-wrap">
-          <table class="review-table">
-            <thead>
-              <tr>
-                <th>날짜</th>
-                <th>1일 전</th>
-                <th>4일 전</th>
-                <th>7일 전</th>
-                <th>14일 전</th>
-              </tr>
-            </thead>
-            <tbody id="reviewFullGrid"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
+    <div id="mine-results"></div>
   </div>
 
 </div>
 
-<div id="toast" class="toast"></div>
+<div class="wrap-wide">
+  <div class="panel" id="panel-admin">
+    <div class="card" id="admin-gate-card">
+      <div class="field">
+        <label>관리자 비밀번호</label>
+        <input type="password" id="admin-pin-input" placeholder="관리자 비밀번호">
+      </div>
+      <p class="error" id="err-admin">비밀번호가 일치하지 않아요.</p>
+      <button class="btn" id="admin-submit-btn">확인</button>
+    </div>
+
+    <div id="admin-content" style="display:none;">
+      <div class="toolbar">
+        <span class="count" id="result-count">불러오는 중…</span>
+        <div style="display:flex; gap:8px;">
+          <button class="refresh-btn" id="download-btn">엑셀 다운로드</button>
+          <button class="refresh-btn" id="refresh-btn">새로고침</button>
+        </div>
+      </div>
+
+      <div class="subpanel show" id="subpanel-summary">
+        <div id="admin-edit-panel" style="display:none; margin-bottom:20px;"></div>
+
+        <p style="font-weight:700; color:var(--soil-dark); margin:0 0 8px;">치유농업사 활용실적</p>
+        <div class="table-wrap" style="margin-bottom:28px;">
+          <table id="simple-summary-table">
+            <thead>
+
+              <tr>
+                <th style="width:80px;">시군</th>
+                <th style="width:80px;">성명</th>
+                <th style="width:100px;">구분</th>
+                <th style="width:110px;">활용기간</th>
+                <th>프로그램 또는 교육명</th>
+                <th style="width:90px;">치유농업사<br>취득연도</th>
+                <th style="width:100px;">관리</th>
+              </tr>
+            </thead>
+            <tbody id="simple-summary-body">
+              <tr class="empty-row"><td colspan="7">불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="font-weight:700; color:var(--soil-dark); margin:0 0 8px;">유관기관 추진실적</p>
+        <p class="pin-hint" style="margin-bottom:14px;">운영회차 2회 이상인 활동실적은 최종성과로 반영되고, 매출액·효과측정여부·참여자합계·유관기관개수도 2회 이상 실적만 집계돼요. 구분은 치유농업사로 전체 고정했습니다.</p>
+
+        <div class="table-wrap">
+          <table id="summary-final-table">
+            <thead>
+              <tr>
+                <th rowspan="2" style="width:60px;">성명</th>
+                <th rowspan="2" style="width:100px;">휴대폰번호</th>
+                <th rowspan="2" style="width:70px;">소속시군</th>
+                <th rowspan="2" style="width:60px;">구분</th>
+                <th colspan="2" style="background:#FBE7A1; color:var(--soil-dark);">학생관련 유관기관</th>
+                <th colspan="2" style="background:#C9DCF0; color:var(--soil-dark);">노인관련 유관기관</th>
+                <th colspan="2" style="background:#D6D0EC; color:var(--soil-dark);">장애인관련 유관기관</th>
+                <th colspan="2" style="background:#CFE6D2; color:var(--soil-dark);">정신건강관련 유관기관</th>
+                <th colspan="2" style="background:#E4E0D6; color:var(--soil-dark);">학생, 노인, 장애인, 정신건강<br>외 유관기관의 합</th>
+
+                <th colspan="4" style="background:#C1443B;">❷ 최종성과<br>(2회이상 실적 포함)</th>
+                <th colspan="2" style="background:#F4B8C6; color:var(--soil-dark);">(참고용 조사자료)<br>1회 프로그램 운영 실적</th>
+                <th rowspan="2" style="width:100px;">관리</th>
+              </tr>
+              <tr>
+                <th style="width:100px;">기관명</th>
+                <th style="width:60px;">참여자수</th>
+                <th style="width:100px;">기관명</th>
+                <th style="width:60px;">참여자수</th>
+                <th style="width:100px;">기관명</th>
+                <th style="width:60px;">참여자수</th>
+                <th style="width:100px;">기관명</th>
+                <th style="width:60px;">참여자수</th>
+                <th style="width:100px;">기관명</th>
+                <th style="width:60px;">참여자수</th>
+                <th style="width:70px;">유관기관<br>개수</th>
+                <th style="width:70px;">참여자<br>합계</th>
+                <th style="width:90px;">매출액(원)</th>
+                <th style="width:70px;">효과측정<br>여부</th>
+                <th style="width:100px;">기관명<br>(단체명 등)</th>
+                <th style="width:60px;">참여자수</th>
+              </tr>
+            </thead>
+            <tbody id="summary-final-body">
+              <tr class="empty-row"><td colspan="21">불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-// If not running inside a Claude artifact (window.storage not injected), fall back to
-// the browser's own localStorage — same interface, so the rest of the app doesn't
-// need to know which one it's using. This makes the file work as a fully standalone
-// page, opened directly or hosted anywhere, with no Claude involved.
-if(typeof window.storage === 'undefined'){
-  const LS_PREFIX = 'sptracker_';
-  window.storage = {
-    async get(key, shared){
-      const raw = localStorage.getItem(LS_PREFIX + (shared ? 'shared_' : '') + key);
-      if(raw === null) throw new Error('not found');
-      return { key, value: raw, shared: !!shared };
-    },
-    async set(key, value, shared){
-      localStorage.setItem(LS_PREFIX + (shared ? 'shared_' : '') + key, value);
-      return { key, value, shared: !!shared };
-    },
-    async delete(key, shared){
-      localStorage.removeItem(LS_PREFIX + (shared ? 'shared_' : '') + key);
-      return { key, deleted: true, shared: !!shared };
-    },
-    async list(prefix, shared){
-      const p = LS_PREFIX + (shared ? 'shared_' : '') + (prefix || '');
-      const keys = [];
-      for(let i = 0; i < localStorage.length; i++){
-        const k = localStorage.key(i);
-        if(k && k.startsWith(p)) keys.push(k.slice(LS_PREFIX.length + (shared ? 7 : 0)));
-      }
-      return { keys, prefix, shared: !!shared };
-    }
-  };
-}
+// ---- Firebase 설정: 아래 값을 Firebase 콘솔 > 프로젝트 설정 > 내 앱 에서 복사해 붙여넣으세요 ----
+const firebaseConfig = {
+  apiKey: "AIzaSyAXlsiUFHSL7G76V2XY7A3zMif-CbILNXA",
+  authDomain: "cldbshddjq.firebaseapp.com",
+  projectId: "cldbshddjq",
+  storageBucket: "cldbshddjq.firebasestorage.app",
+  messagingSenderId: "960685767852",
+  appId: "1:960685767852:web:a8410c1eee4fc5aacbb309"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const $ = (id) => document.getElementById(id);
-let plan = null;          // { startDate, endDate, subjects: [{id,name,totalPages}] }
-let logs = {};            // { [subjectId]: { [date]: pages } }
-let reviewChecks = {};    // { "todayStr_offset_subjectId": true }
-let activeSubjectId = null;
-
-// alert() can be silently blocked inside a sandboxed artifact frame, so use an
-// on-screen toast for all validation messages instead.
-let toastTimer = null;
-function showToast(msg){
-  const el = $('toast');
-  if(!el) return;
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
-}
-const alert = showToast;
-
-// ---------- date helpers ----------
-function toDate(str){ const [y,m,d] = str.split('-').map(Number); return new Date(Date.UTC(y, m-1, d)); }
-function fmt(d){ return d.toISOString().slice(0,10); }
-function todayUTC(){ const n = new Date(); return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())); }
-function diffDays(a,b){ return Math.round((b - a) / 86400000); }
-function md(str){ const [,m,d] = str.split('-'); return `${parseInt(m)}.${parseInt(d)}`; }
-function koreanDateLabel(d){ return `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일`; }
-const KOREAN_WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
-
-const MOTIVATION_QUOTES = [
-  '지금 이 순간에도 경쟁자는 책장을 넘기고 있어요.',
-  '불합격자의 스펙 1위는 "내일부터"예요.',
-  '오늘 안 넘긴 페이지는 내년에도 그대로예요.',
-  '남들 잘 때 넘긴 한 페이지가 이름을 바꿔요.',
-  '1년 벌면 10년이 편해져요, 지금은 버틸 시간이에요.',
-  '핑계 댈 시간에 한 줄이라도 더 읽어요.',
-  '졸린 눈 비비고 넘긴 이 페이지가 나를 증명해요.',
-  '합격수기엔 항상 "그날도 포기하고 싶었다"가 있어요.',
-  '지금 덮고 싶은 이 순간이 바로 실력이 갈리는 지점이에요.',
-  '오늘 하루 논 만큼 합격 발표는 늦어져요.',
-  '내년의 나에게 미루지 마세요, 그 사람도 지쳐 있어요.',
-  '시험장에서 아는 문제, 지금 이 페이지일 수도 있어요.',
-  '딱 오늘만 버티면 내일의 내가 고마워해요.',
-  '노력은 티 안 낼 뿐, 배신하지 않아요.',
-  '합격은 특별한 사람이 아니라 포기 안 한 사람의 몫이에요.',
-  '몸이 힘든 게 아니라 마음이 약해지려는 거예요.',
-  '지금이 인생에서 가장 시간 많고 젊은 때예요.',
-  '펜을 놓는 순간, 합격도 같이 멀어져요.',
-  '작심삼일도 100번이면 1년이 돼요.',
-  '오늘의 나태함은 내년 재수생 명단으로 돌아와요.',
-  '경쟁자들도 지금 이 문장을 읽고 다시 책을 펴요.',
-  '고생은 합격만이 보상해줘요, 포기는 보상이 없어요.',
-  '지금 이 페이지가 못 본 척한 페이지가 되지 않게 하세요.',
-  '결과는 방향이 맞은 노력만 배신하지 않아요.'
-];
-
-function getRandomQuote(){
-  return MOTIVATION_QUOTES[Math.floor(Math.random() * MOTIVATION_QUOTES.length)];
-}
-
-function renderMotivationQuote(){
-  $('motivationQuote').textContent = getRandomQuote();
-}
-
-function updateLogDateWeekday(){
-  const val = $('logDate').value;
-  if(!val){ $('logDateWeekday').textContent = ''; return; }
-  const d = toDate(val);
-  $('logDateWeekday').textContent = `(${KOREAN_WEEKDAYS[d.getUTCDay()]})`;
-}
-$('logDate').addEventListener('input', updateLogDateWeekday);
-$('logDate').addEventListener('change', updateLogDateWeekday);
-// overallIndex: 1-based position counting across all repeats (e.g. 250 with totalPages=200 -> 2회독 50p)
-function bookPosition(overallIndex, totalPages){
-  const round = Math.floor((overallIndex - 1) / totalPages) + 1;
-  const page = ((overallIndex - 1) % totalPages) + 1;
-  return { round, page };
-}
-
-// Computes the "○회독 89p ~ 96p" style range text for a subject's remaining today-goal.
-function todayGoalRangeText(subject, st){
-  if(st.remainingPages === 0 || st.todayGoal === 0) return '';
-  const repeats = plan.repeats || 1;
-  const startIdx = st.prevCumulative + 1;
-  const endIdx = st.todayTargetCumulative;
-  const startPos = bookPosition(startIdx, subject.totalPages);
-  const endPos = bookPosition(endIdx, subject.totalPages);
-  const roundTag = (r) => repeats > 1 ? `${r}회독 ` : '';
-  if(startPos.round === endPos.round){
-    return `${roundTag(startPos.round)}${startPos.page}p ~ ${endPos.page}p`;
+// ---- window.storage 어댑터: 기존 코드는 전혀 건드리지 않고, Claude 아티팩트 전용 저장소 API를
+// 동일한 이름/모양으로 Firestore 위에 재구현합니다. entries 컬렉션에 문서 1건 = 응답 1건. ----
+window.storage = {
+  async list(prefix, apply) {
+    const snap = await db.collection('entries').get();
+    return { keys: snap.docs.map(function(d) { return 'entry:' + d.id; }) };
+  },
+  async get(key, apply) {
+    const id = key.replace(/^entry:/, '');
+    const doc = await db.collection('entries').doc(id).get();
+    if (!doc.exists) return null;
+    return { value: JSON.stringify(doc.data()) };
+  },
+  async set(key, value, apply) {
+    const id = key.replace(/^entry:/, '');
+    await db.collection('entries').doc(id).set(JSON.parse(value));
+    return true;
+  },
+  async delete(key, apply) {
+    const id = key.replace(/^entry:/, '');
+    await db.collection('entries').doc(id).delete();
+    return true;
   }
-  return `${roundTag(startPos.round)}${startPos.page}p ~ ${subject.totalPages}p 이어서 ${roundTag(endPos.round)}1p ~ ${endPos.page}p`;
-}
-
-// Sum of a subject's logged pages strictly BEFORE dateStr (excludes dateStr itself),
-// plus any pre-tracking baseline progress (subject.baseline) which isn't tied to a date.
-function cumulativeBefore(subjectId, dateStr){
-  const subject = plan.subjects.find(s => s.id === subjectId);
-  const baseline = (subject && subject.baseline) || 0;
-  const dayLog = logs[subjectId] || {};
-  let sum = baseline;
-  for(const [d, p] of Object.entries(dayLog)){ if(d < dateStr) sum += Number(p) || 0; }
-  return sum;
-}
-
-// Converts a "page number reached" (within the current round) into an absolute
-// cumulative page count, given how many pages were already done before that date.
-function reachedPageToCumulative(reachedPage, totalPages, prevCumulative){
-  const prevRound = prevCumulative > 0 ? Math.floor((prevCumulative - 1) / totalPages) + 1 : 1;
-  const prevPageInRound = prevCumulative > 0 ? ((prevCumulative - 1) % totalPages) + 1 : 0;
-  const round = (prevCumulative > 0 && reachedPage < prevPageInRound) ? prevRound + 1 : prevRound;
-  return (round - 1) * totalPages + reachedPage;
-}
-
-// ---------- storage ----------
-async function loadState(){
-  try{ const r = await window.storage.get('plan', false); plan = r ? JSON.parse(r.value) : null; }catch(e){ plan = null; }
-  try{ const r = await window.storage.get('logs', false); logs = r ? JSON.parse(r.value) : {}; }catch(e){ logs = {}; }
-  try{ const r = await window.storage.get('reviewChecks', false); reviewChecks = r ? JSON.parse(r.value) : {}; }catch(e){ reviewChecks = {}; }
-}
-async function savePlan(){ try{ await window.storage.set('plan', JSON.stringify(plan), false); }catch(e){ console.warn('저장 실패(plan):', e); } }
-async function saveLogs(){ try{ await window.storage.set('logs', JSON.stringify(logs), false); }catch(e){ console.warn('저장 실패(logs):', e); } }
-async function saveReviewChecks(){ try{ await window.storage.set('reviewChecks', JSON.stringify(reviewChecks), false); }catch(e){ console.warn('저장 실패(reviewChecks):', e); } }
-
-let resetArmed = false;
-let resetArmTimer = null;
-$('resetDefaultBtn').onclick = async () => {
-  if(!resetArmed){
-    resetArmed = true;
-    $('resetDefaultBtn').textContent = '정말요? 한 번 더 누르면 초기화돼요';
-    showToast('현재 데이터가 모두 사라져요. 정말이면 버튼을 한 번 더 눌러주세요.');
-    clearTimeout(resetArmTimer);
-    resetArmTimer = setTimeout(() => {
-      resetArmed = false;
-      $('resetDefaultBtn').textContent = '기본값으로 재설정';
-    }, 4000);
-    return;
-  }
-  clearTimeout(resetArmTimer);
-  resetArmed = false;
-  $('resetDefaultBtn').textContent = '기본값으로 재설정';
-
-  plan = defaultPlan();
-  logs = {};
-  plan.subjects.forEach(s => { logs[s.id] = {}; });
-  await savePlan();
-  await saveLogs();
-  activeSubjectId = plan.subjects[0].id;
-  showDashboard();
-  showToast('기본값으로 초기화했어요.');
 };
 
-// ---------- backup export / import ----------
-$('exportBackupBtn').onclick = () => {
-  const backup = {
-    exportedAt: fmt(todayUTC()),
-    plan,
-    logs,
-    reviewChecks
-  };
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `study-backup-${fmt(todayUTC())}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('백업 파일을 내려받았어요.');
-};
+let selectedRemark = null;
+let selectedConsent = null;
+let blockCounter = 0;
+const ADMIN_PASSWORD = 'happy1023!';
+let adminUnlocked = false;
 
-$('importBackupBtn').onclick = () => {
-  $('importBackupFile').value = '';
-  $('importBackupFile').click();
-};
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
 
-$('importBackupFile').addEventListener('change', async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  try{
-    const text = await file.text();
-    const data = JSON.parse(text);
-    if(!data || !data.plan || !Array.isArray(data.plan.subjects)){
-      showToast('올바른 백업 파일이 아니에요.');
+function formatDateMask(digits) {
+  digits = digits.slice(0, 8);
+  let out = digits.slice(0, 4);
+  if (digits.length > 4) out += '-' + digits.slice(4, 6);
+  if (digits.length > 6) out += '-' + digits.slice(6, 8);
+  return out;
+}
+
+function attachDateMask(input) {
+  input.addEventListener('input', function() {
+    const digits = input.value.replace(/[^0-9]/g, '');
+    input.value = formatDateMask(digits);
+  });
+}
+
+function makeBlockHTML(idx, data) {
+  data = data || {};
+  const types = ['채용', '프로그램 운영', '교육'];
+
+  const orgTypes = ['학생관련 유관기관', '노인관련 유관기관', '장애인관련 유관기관', '정신건강관련 유관기관', '그외 유관기관', '시군농업기술센터'];
+  return '<div class="program-block" data-idx="' + idx + '">' +
+    '<div class="block-title">활동실적</div>' +
+    '<button type="button" class="remove-block-btn">이 활동실적 삭제</button>' +
+    '<div class="field"><label>프로그램 또는 교육명</label>' +
+      '<textarea class="p-task" placeholder="예: 인지건강 개선 프로그램 운영">' + escapeHtml(data.task || '') + '</textarea>' +
+      '<div class="examples">예시) 치유농업센터 운영 · 시설운영자 교육 · 인지건강 개선 프로그램</div>' +
+    '</div>' +
+    '<div class="field"><label>구분 <span style="font-weight:400; color:var(--ink-soft);">(3개 중 1개 선택)</span></label>' +
+      '<div class="choice-row p-type">' +
+        types.map(function(t) {
+          return '<div class="choice' + (t === data.type ? ' selected' : '') + '" data-value="' + t + '">' + t + '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>' +
+    '<div class="field"><label>프로그램 운영(출강한) 기관유형 <span style="font-weight:400; color:var(--ink-soft);">(6개 중 1개 선택)</span></label>' +
+      '<div class="choice-grid p-org">' +
+        orgTypes.map(function(o) {
+          return '<div class="choice' + (o === data.orgType ? ' selected' : '') + '" data-value="' + o + '">' + o + '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>' +
+    '<div class="field"><label>기관명</label>' +
+      '<input type="text" class="p-orgname" value="' + escapeHtml(data.orgName || '') + '" placeholder="예: OO초등학교, OO요양원">' +
+    '</div>' +
+    '<div class="field"><label>활용기간</label><div class="period-row">' +
+      '<input type="text" class="p-start" inputmode="numeric" maxlength="10" value="' + escapeHtml(data.start || '') + '" placeholder="2026-03-01">' +
+      '<span>~</span>' +
+      '<input type="text" class="p-end" inputmode="numeric" maxlength="10" value="' + escapeHtml(data.end || '') + '" placeholder="2026-08-31">' +
+    '</div></div>' +
+    '<div class="field"><label>운영회차</label><div class="period-row" style="max-width:140px;">' +
+      '<input type="text" class="p-count" inputmode="numeric" maxlength="4" value="' + escapeHtml(data.count || '') + '" placeholder="예: 12">' +
+
+      '<span>회</span>' +
+    '</div></div>' +
+    '<div class="field"><label>참여자수 <span style="font-weight:400; color:var(--ink-soft);">(예시 : 7명 x 5회기 = 35명)</span></label><div class="period-row" style="max-width:140px;">' +
+      '<input type="text" class="p-participants" inputmode="numeric" maxlength="5" value="' + escapeHtml(data.participants || '') + '" placeholder="예: 25">' +
+      '<span>명</span>' +
+    '</div></div>' +
+    '<div class="field"><label>매출액 <span style="font-weight:400; color:var(--ink-soft);">(강사수당 또는 프로그램운영비)</span></label><div class="period-row">' +
+      '<input type="text" class="p-revenue" inputmode="numeric" value="' + escapeHtml(data.revenue || '') + '" placeholder="예: 500000">' +
+      '<span>원</span>' +
+    '</div></div>' +
+    '<div class="field"><label>효과측정여부</label>' +
+      '<div class="choice-row p-effect">' +
+        ['예', '아니오'].map(function(v) {
+          return '<div class="choice' + (v === data.effect ? ' selected' : '') + '" data-value="' + v + '">' + v + '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renumberBlocks(container) {
+  const blocks = container.querySelectorAll('.program-block');
+  blocks.forEach(function(b, i) {
+    b.querySelector('.block-title').textContent = '활동실적' + (i + 1);
+    b.querySelector('.remove-block-btn').style.display = blocks.length > 1 ? 'block' : 'none';
+  });
+}
+
+function addBlock(container, data) {
+  blockCounter++;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = makeBlockHTML(blockCounter, data);
+
+  const block = wrapper.firstElementChild;
+  container.appendChild(block);
+
+  const taskInput = block.querySelector('.p-task');
+  taskInput.addEventListener('input', function() {
+    markInvalid(taskInput, false);
+  });
+  const orgNameInput = block.querySelector('.p-orgname');
+  orgNameInput.addEventListener('input', function() {
+    markInvalid(orgNameInput, false);
+  });
+  attachDateMask(block.querySelector('.p-start'));
+  attachDateMask(block.querySelector('.p-end'));
+  const countInput = block.querySelector('.p-count');
+  countInput.addEventListener('input', function() {
+    countInput.value = countInput.value.replace(/[^0-9]/g, '');
+  });
+  const participantsInput = block.querySelector('.p-participants');
+  participantsInput.addEventListener('input', function() {
+    participantsInput.value = participantsInput.value.replace(/[^0-9]/g, '');
+  });
+  const revenueInput = block.querySelector('.p-revenue');
+  revenueInput.addEventListener('input', function() {
+    const digits = revenueInput.value.replace(/[^0-9]/g, '');
+    revenueInput.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
+  });
+  const typeGroup = block.querySelector('.p-type');
+  typeGroup.querySelectorAll('.choice').forEach(function(el) {
+    el.addEventListener('click', function() {
+      typeGroup.querySelectorAll('.choice').forEach(function(c) { c.classList.remove('selected'); });
+      el.classList.add('selected');
+      markInvalid(typeGroup, false, 'invalid-group');
+
+    });
+  });
+  const orgGroup = block.querySelector('.p-org');
+  orgGroup.querySelectorAll('.choice').forEach(function(el) {
+    el.addEventListener('click', function() {
+      orgGroup.querySelectorAll('.choice').forEach(function(c) { c.classList.remove('selected'); });
+      el.classList.add('selected');
+      markInvalid(orgGroup, false, 'invalid-group');
+    });
+  });
+  const effectGroup = block.querySelector('.p-effect');
+  effectGroup.querySelectorAll('.choice').forEach(function(el) {
+    el.addEventListener('click', function() {
+      effectGroup.querySelectorAll('.choice').forEach(function(c) { c.classList.remove('selected'); });
+      el.classList.add('selected');
+      markInvalid(effectGroup, false, 'invalid-group');
+    });
+  });
+  block.querySelector('.remove-block-btn').addEventListener('click', function() {
+    if (container.querySelectorAll('.program-block').length <= 1) return;
+    block.remove();
+    renumberBlocks(container);
+  });
+
+  renumberBlocks(container);
+  return block;
+}
+
+function readBlocks(container, forceAll) {
+  const blocks = Array.from(container.querySelectorAll('.program-block'));
+  const programs = [];
+  let hasError = false;
+
+  blocks.forEach(function(b) {
+    const taskEl = b.querySelector('.p-task');
+    const task = taskEl.value.trim();
+    const typeGroup = b.querySelector('.p-type');
+    const sel = typeGroup.querySelector('.choice.selected');
+    const type = sel ? sel.dataset.value : '';
+    const orgGroup = b.querySelector('.p-org');
+    const orgSel = orgGroup.querySelector('.choice.selected');
+    const orgType = orgSel ? orgSel.dataset.value : '';
+    const orgNameEl = b.querySelector('.p-orgname');
+    const orgName = orgNameEl.value.trim();
+    const start = b.querySelector('.p-start').value.trim();
+    const end = b.querySelector('.p-end').value.trim();
+    const period = start || end ? (start + (end ? ' ~ ' + end : '')) : '';
+    const count = b.querySelector('.p-count').value.trim();
+    const participants = b.querySelector('.p-participants').value.trim();
+    const revenue = b.querySelector('.p-revenue').value.trim();
+    const effectGroup = b.querySelector('.p-effect');
+    const effectSel = effectGroup.querySelector('.choice.selected');
+    const effect = effectSel ? effectSel.dataset.value : '';
+    const touched = forceAll || task || type || orgType || orgName || start || end || count || participants || revenue || effect;
+
+    if (!touched) {
+      markInvalid(taskEl, false);
+      markInvalid(typeGroup, false, 'invalid-group');
+      markInvalid(orgGroup, false, 'invalid-group');
+      markInvalid(orgNameEl, false);
+      markInvalid(effectGroup, false, 'invalid-group');
+      b.classList.remove('invalid-block');
       return;
     }
-    plan = data.plan;
-    logs = data.logs || {};
-    reviewChecks = data.reviewChecks || {};
-    await savePlan();
-    await saveLogs();
-    await saveReviewChecks();
-    activeSubjectId = plan.subjects[0] ? plan.subjects[0].id : null;
-    showDashboard();
-    showToast('백업을 불러왔어요.');
-  }catch(err){
-    showToast('파일을 읽는 중 문제가 생겼어요.');
-  }
-});
 
-// ---------- computation ----------
-function subjectTarget(subject){ return subject.totalPages * (plan.repeats || 1); }
+    const missing = !task || !type || !orgType || !orgName || !effect;
+    markInvalid(taskEl, !task);
+    markInvalid(typeGroup, !type, 'invalid-group');
+    markInvalid(orgGroup, !orgType, 'invalid-group');
+    markInvalid(orgNameEl, !orgName);
+    markInvalid(effectGroup, !effect, 'invalid-group');
+    b.classList.toggle('invalid-block', missing);
 
-function subjectStats(subject){
-  const start = toDate(plan.startDate);
-  const end = toDate(plan.endDate);
-  const totalDays = diffDays(start, end) + 1;
-  const target = subjectTarget(subject);
-  let today = todayUTC();
-  const clampedToday = today < start ? start : (today > end ? end : today);
-  const daysPassed = Math.min(Math.max(diffDays(start, clampedToday), 0), totalDays - 1); // full days before "today" bucket, 0-indexed
-  const daysRemaining = totalDays - daysPassed; // includes today
-  const dayLog = logs[subject.id] || {};
-  const baseline = subject.baseline || 0;
-  const cumulativeThrough = (dateStr) => {
-    let sum = baseline;
-    for(const [d,p] of Object.entries(dayLog)){ if(d <= dateStr) sum += Number(p) || 0; }
-    return sum;
-  };
-  const doneToDate = cumulativeThrough(fmt(clampedToday));
-  const remainingPages = Math.max(target - doneToDate, 0);
-  // Today's goal is fixed for the day: it's based on progress BEFORE today's own log entries,
-  // so it doesn't shrink as you log pages today (that would make "done/goal" exceed 100% oddly).
-  // Any shortfall or overshoot naturally carries into tomorrow's recalculation instead.
-  const prevCumulative = cumulativeBefore(subject.id, fmt(clampedToday));
-  const remainingBeforeToday = Math.max(target - prevCumulative, 0);
-  const todayGoal = remainingBeforeToday > 0 ? Math.ceil(remainingBeforeToday / daysRemaining) : 0;
-  const todayTargetCumulative = Math.min(prevCumulative + todayGoal, target);
-  const idealCumulativeToday = Math.min(target, target * (daysPassed + 1) / totalDays);
-  const pct = Math.min(100, (doneToDate / target) * 100);
-  const idealPct = Math.min(100, (idealCumulativeToday / target) * 100);
-  const flatPace = target / totalDays;
-  const pageDelta = doneToDate - idealCumulativeToday;
-  const dayDelta = flatPace > 0 ? pageDelta / flatPace : 0;
-
-  return { totalDays, daysPassed, daysRemaining, doneToDate, remainingPages, todayGoal, prevCumulative, todayTargetCumulative, pct, idealPct, pageDelta, dayDelta, clampedToday, target };
-}
-
-// ---------- dashboard render ----------
-function renderTopBar(){
-  const start = toDate(plan.startDate), end = toDate(plan.endDate);
-  const totalDays = diffDays(start, end) + 1;
-  $('periodSummary').textContent = `${md(plan.startDate)} ~ ${md(plan.endDate)} · 총 ${totalDays}일`;
-  const today = todayUTC();
-  const dLeft = diffDays(today, end);
-  let ddayText;
-  if(today < start) ddayText = `D-${diffDays(today, start)} 시작 전`;
-  else if(dLeft > 0) ddayText = `D-${dLeft}`;
-  else if(dLeft === 0) ddayText = 'D-DAY';
-  else ddayText = `기간 종료 (D+${-dLeft})`;
-
-  // The closer the exam gets, the more urgent (red) the badge looks.
-  let ddayClass = '';
-  if(today >= start && dLeft >= 0){
-    if(dLeft <= 3) ddayClass = 'dday-critical';
-    else if(dLeft <= 7) ddayClass = 'dday-urgent';
-    else if(dLeft <= 30) ddayClass = 'dday-soon';
-  }
-  $('ddayBadge').innerHTML = `<span class="dday ${ddayClass}">${ddayText}</span>`;
-}
-
-// ---------- streak + estimated completion ----------
-function anyLoggedOn(dateStr){
-  return plan.subjects.some(s => (Number((logs[s.id] || {})[dateStr]) || 0) > 0);
-}
-
-function computeStreak(){
-  let streak = 0;
-  const d = todayUTC();
-  if(!anyLoggedOn(fmt(d))){ d.setUTCDate(d.getUTCDate() - 1); }
-  while(anyLoggedOn(fmt(d))){
-    streak++;
-    d.setUTCDate(d.getUTCDate() - 1);
-  }
-  return streak;
-}
-
-// Consecutive days (not counting today, since today isn't over) with NO study logged at all.
-function computeInactivityStreak(){
-  const start = toDate(plan.startDate);
-  let streak = 0;
-  const d = todayUTC();
-  d.setUTCDate(d.getUTCDate() - 1);
-  while(d >= start && !anyLoggedOn(fmt(d))){
-    streak++;
-    d.setUTCDate(d.getUTCDate() - 1);
-  }
-  return streak;
-}
-
-// Projects a completion date from the subject's ACTUAL average pace since the plan started
-// (excluding the pre-tracking baseline, which isn't tied to any real day of work).
-function estimateCompletion(subject, st){
-  if(st.remainingPages === 0) return { done: true };
-  const baseline = subject.baseline || 0;
-  const trackedProgress = st.doneToDate - baseline;
-  const elapsedDays = st.daysPassed + 1;
-  if(trackedProgress <= 0 || elapsedDays <= 0) return null;
-  const pace = trackedProgress / elapsedDays;
-  if(pace <= 0) return null;
-  const daysNeeded = Math.ceil(st.remainingPages / pace);
-  const d = new Date(todayUTC());
-  d.setUTCDate(d.getUTCDate() + daysNeeded);
-  return { done: false, date: d, pace };
-}
-
-// For multi-round plans, projects (or looks up, for already-finished rounds) the date
-// each round (1회독, 2회독, ...) finishes, using the same actual-pace logic as estimateCompletion.
-function estimateRoundDates(subject, st){
-  const repeats = plan.repeats || 1;
-  if(repeats <= 1) return [];
-  const baseline = subject.baseline || 0;
-  const trackedProgress = st.doneToDate - baseline;
-  const elapsedDays = st.daysPassed + 1;
-  const pace = (trackedProgress > 0 && elapsedDays > 0) ? trackedProgress / elapsedDays : 0;
-
-  const dayLog = logs[subject.id] || {};
-  const sortedDates = Object.keys(dayLog).sort();
-
-  const results = [];
-  for(let r = 1; r <= repeats; r++){
-    const target = r * subject.totalPages;
-    if(target <= st.doneToDate){
-      let running = baseline;
-      let doneDate = null;
-      for(const d of sortedDates){
-        running += Number(dayLog[d]) || 0;
-        if(running >= target){ doneDate = d; break; }
-      }
-      results.push({ round: r, done: true, date: doneDate ? toDate(doneDate) : null });
-    } else if(pace > 0){
-      const daysNeeded = Math.ceil((target - st.doneToDate) / pace);
-      const d = new Date(todayUTC());
-      d.setUTCDate(d.getUTCDate() + daysNeeded);
-      results.push({ round: r, done: false, date: d });
-    } else {
-      results.push({ round: r, done: false, date: null });
-    }
-  }
-  return results;
-}
-
-const STREAK_MILESTONES = [3, 7, 14, 21, 30, 50, 100];
-
-let celebrationShownForDate = null;
-
-function maybeCelebrateAllGoalsAchieved(){
-  if(!plan.subjects.length) return;
-  const todayStr = fmt(todayUTC());
-  const allAchieved = plan.subjects.every(s => {
-    const st = subjectStats(s);
-    const doneToday = Number((logs[s.id] || {})[todayStr]) || 0;
-    return st.remainingPages === 0 || (st.todayGoal > 0 && doneToday >= st.todayGoal);
+    if (missing) { hasError = true; return; }
+    programs.push({ task: task, type: type, orgType: orgType, orgName: orgName, period: period, count: count, participants: participants, revenue: revenue, effect: effect });
   });
-  if(allAchieved && celebrationShownForDate !== todayStr){
-    celebrationShownForDate = todayStr;
-    triggerConfetti();
-    showToast('오늘 목표를 모두 해냈어요! 정말 대단해요 🎉');
-  }
+  return { programs: programs, hasError: hasError };
 }
 
-function triggerConfetti(){
-  const colors = ['#E0483C', '#FFD54F', '#2F6F4F', '#3B6FA0', '#D98E3B'];
-  const container = document.createElement('div');
-  container.className = 'confetti-container';
-  document.body.appendChild(container);
-  for(let i = 0; i < 60; i++){
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = (Math.random() * 100) + 'vw';
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.animationDelay = (Math.random() * 0.5) + 's';
-    piece.style.animationDuration = (2 + Math.random() * 1.5) + 's';
-    piece.style.setProperty('--rot', (Math.random() * 360) + 'deg');
-    container.appendChild(piece);
-  }
-  setTimeout(() => container.remove(), 3800);
-}
+const fBlocksContainer = document.getElementById('f-blocks');
+addBlock(fBlocksContainer);
 
-function renderSummaryStats(){
-  const streak = computeStreak();
-  const inactivityStreak = computeInactivityStreak();
-  const planEnd = toDate(plan.endDate);
-  const todayStr = fmt(todayUTC());
-  const yesterday = new Date(todayUTC()); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-  const yesterdayStr = fmt(yesterday);
-
-  // Inactivity warning — shown when nothing has been logged for 2+ days in a row.
-  const warningHtml = inactivityStreak >= 2
-    ? `<div class="summary-warning">⚠️ ${inactivityStreak}일째 기록이 없어요. 지금 조금이라도 시작해보세요!</div>`
-    : '';
-
-  // Streak milestone callout — a bigger moment when hitting a round number.
-  const isMilestone = streak > 0 && STREAK_MILESTONES.includes(streak);
-  const streakHtml = isMilestone
-    ? `<div class="summary-streak summary-streak-milestone">
-        <span class="summary-streak-num">${streak}</span>일 연속 돌파! 🔥🎉
-       </div>`
-    : `<div class="summary-streak">
-        <span class="summary-streak-num">${streak}</span>일 연속 기록 중${streak > 0 ? ' 🔥' : ''}
-       </div>`;
-
-  // Cumulative total pages across all subjects.
-  const totalReadAllTime = plan.subjects.reduce((sum, s) => sum + subjectStats(s).doneToDate, 0);
-
-  // Today vs yesterday.
-  const todayTotal = plan.subjects.reduce((sum, s) => sum + (Number((logs[s.id] || {})[todayStr]) || 0), 0);
-  const yesterdayTotal = plan.subjects.reduce((sum, s) => sum + (Number((logs[s.id] || {})[yesterdayStr]) || 0), 0);
-  const dayDiff = todayTotal - yesterdayTotal;
-  let compareHtml;
-  if(todayTotal === 0 && yesterdayTotal === 0){
-    compareHtml = `<div class="summary-compare">어제와 오늘 아직 기록이 없어요.</div>`;
-  } else if(dayDiff > 0){
-    compareHtml = `<div class="summary-compare summary-compare-up">어제보다 ${dayDiff}페이지 더 했어요 📈</div>`;
-  } else if(dayDiff < 0){
-    compareHtml = `<div class="summary-compare summary-compare-down">어제보다 ${Math.abs(dayDiff)}페이지 덜 했어요 📉</div>`;
-  } else {
-    compareHtml = `<div class="summary-compare">어제와 똑같은 페이스예요.</div>`;
-  }
-
-  const totalsHtml = `
-    <div class="summary-totals">
-      <div class="summary-total-pages">지금까지 총 <b>${Math.round(totalReadAllTime)}</b>페이지 읽었어요</div>
-      ${compareHtml}
-    </div>`;
-
-  const etaRows = plan.subjects.map(s => {
-    const st = subjectStats(s);
-    const est = estimateCompletion(s, st);
-    const roundDates = estimateRoundDates(s, st);
-    const roundText = roundDates.length
-      ? ` (${roundDates.map(rd => {
-          if(rd.done) return `${rd.round}회독 ${rd.date ? koreanDateLabel(rd.date) : '완료'}`;
-          return rd.date ? `${rd.round}회독 ${koreanDateLabel(rd.date)}` : `${rd.round}회독 계산 중`;
-        }).join(' · ')})`
-      : '';
-    let text;
-    if(est && est.done){
-      text = `${s.name}: 완료 🎉${roundText}`;
-    } else if(!est){
-      text = `${s.name}: 예상 완료일 계산 중 (기록이 더 필요해요)`;
-    } else {
-      const estLabel = koreanDateLabel(est.date);
-      const diffFromPlan = diffDays(planEnd, est.date);
-      const compareText = diffFromPlan <= 0
-        ? `계획(${koreanDateLabel(planEnd)})보다 ${Math.abs(diffFromPlan)}일 빠름`
-        : `계획(${koreanDateLabel(planEnd)})보다 ${diffFromPlan}일 늦음`;
-      const cls = diffFromPlan <= 0 ? 'summary-eta-good' : 'summary-eta-bad';
-      text = `${s.name}: <b>${estLabel}</b> 예상 · <span class="${cls}">${compareText}</span>${roundText}`;
-    }
-    return `<div class="summary-eta-row">${text}</div>`;
-  }).join('');
-
-  $('summaryStats').innerHTML = warningHtml + streakHtml + totalsHtml + `<div class="summary-eta-list">${etaRows}</div>`;
-
-  maybeCelebrateAllGoalsAchieved();
-}
-
-function renderSubjectEditList(){
-  $('subjectEditList').innerHTML = plan.subjects.map((s, i) => {
-    const baseline = s.baseline || 0;
-    let existingValue = '';
-    if(baseline > 0){
-      const pos = bookPosition(baseline, s.totalPages);
-      existingValue = pos.page;
-    }
-    const isFirst = i === 0;
-    const isLast = i === plan.subjects.length - 1;
-    return `
-      <div class="subject-edit-row">
-        <div class="ser-reorder">
-          <button type="button" class="ser-move" data-dir="-1" data-subject-id="${s.id}" ${isFirst ? 'disabled' : ''} aria-label="위로">▲</button>
-          <button type="button" class="ser-move" data-dir="1" data-subject-id="${s.id}" ${isLast ? 'disabled' : ''} aria-label="아래로">▼</button>
-        </div>
-        <input type="text" class="ser-name-input" data-subject-id="${s.id}" value="${s.name}">
-        <div class="ser-field-inline">
-          <label>전체</label>
-          <input type="number" class="ser-pages" data-subject-id="${s.id}" min="1" value="${s.totalPages}">
-        </div>
-        <div class="ser-field-inline">
-          <label>기존</label>
-          <input type="number" class="ser-existing" data-subject-id="${s.id}" min="0" placeholder="0" value="${existingValue}">
-        </div>
-        <button type="button" class="ser-delete danger-text" data-subject-id="${s.id}">삭제</button>
-      </div>`;
-  }).join('');
-}
-
-let deleteArmedSubjectId = null;
-let deleteArmTimer = null;
-$('subjectEditList').addEventListener('click', async (e) => {
-  const moveBtn = e.target.closest('.ser-move');
-  if(moveBtn){
-    const subjectId = moveBtn.dataset.subjectId;
-    const dir = parseInt(moveBtn.dataset.dir, 10);
-    const idx = plan.subjects.findIndex(s => s.id === subjectId);
-    const newIdx = idx + dir;
-    if(idx < 0 || newIdx < 0 || newIdx >= plan.subjects.length) return;
-    const [moved] = plan.subjects.splice(idx, 1);
-    plan.subjects.splice(newIdx, 0, moved);
-    await savePlan();
-    renderSubjectEditList();
-    renderSubjectProgressList();
-    renderTodayProgressList();
-    renderAllGoals();
-    return;
-  }
-
-  const delBtn = e.target.closest('.ser-delete');
-  if(!delBtn) return;
-  const subjectId = delBtn.dataset.subjectId;
-
-  if(deleteArmedSubjectId !== subjectId){
-    deleteArmedSubjectId = subjectId;
-    delBtn.textContent = '정말요?';
-    showToast('한 번 더 누르면 이 과목이 삭제돼요.');
-    clearTimeout(deleteArmTimer);
-    deleteArmTimer = setTimeout(() => { deleteArmedSubjectId = null; renderSubjectEditList(); }, 4000);
-    return;
-  }
-
-  clearTimeout(deleteArmTimer);
-  deleteArmedSubjectId = null;
-
-  if(plan.subjects.length <= 1){
-    showToast('과목은 최소 1개 있어야 해요.');
-    renderSubjectEditList();
-    return;
-  }
-  plan.subjects = plan.subjects.filter(s => s.id !== subjectId);
-  delete logs[subjectId];
-  await savePlan();
-  await saveLogs();
-  showToast('과목을 삭제했어요.');
-  renderSubjectEditList();
-  renderSubjectProgressList();
-  renderTodayProgressList();
-  renderAllGoals();
-  renderReviewChecklist();
-  renderReviewFullGrid();
-  renderSummaryStats();
+document.getElementById('add-block-btn').addEventListener('click', function() {
+  addBlock(fBlocksContainer);
 });
 
-$('addTabBtn').onclick = () => {
-  $('addSubjectInline').classList.remove('hidden');
-  $('newSubjectName').value = '';
-  $('newSubjectName').focus();
-};
-
-$('cancelAddSubjectBtn').onclick = () => {
-  $('addSubjectInline').classList.add('hidden');
-};
-
-async function addSubjectInline(){
-  const name = $('newSubjectName').value.trim();
-  if(!name) return;
-  if(plan.subjects.some(s => s.name === name)){
-    alert('이미 같은 이름의 과목이 있어요.');
-    return;
-  }
-  const newSubject = { id: 's_' + Math.random().toString(36).slice(2,9), name, totalPages: 1 };
-  plan.subjects.push(newSubject);
-  logs[newSubject.id] = {};
-  await savePlan();
-  await saveLogs();
-  $('addSubjectInline').classList.add('hidden');
-  renderSubjectEditList();
-  renderSubjectProgressList();
-  renderTodayProgressList();
-  renderAllGoals();
-}
-
-$('confirmAddSubjectBtn').onclick = addSubjectInline;
-$('newSubjectName').addEventListener('keydown', (e) => {
-  if(e.key === 'Enter'){ e.preventDefault(); addSubjectInline(); }
+document.querySelectorAll('#f-remark .choice').forEach(function(el) {
+  el.addEventListener('click', function() {
+    document.querySelectorAll('#f-remark .choice').forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+    selectedRemark = el.dataset.value;
+    markInvalid(document.getElementById('f-remark'), false, 'invalid-group');
+  });
 });
 
-function statusMessage(st, subjectName){
-  const pages = Math.round(Math.abs(st.pageDelta));
-  const days = Math.abs(st.dayDelta);
-  if(st.remainingPages === 0){
-    return { cls: 'status-ahead', text: `${subjectName}, 목표 페이지를 모두 마쳤어요.`, subText: '정말 잘했어요.' };
+document.querySelectorAll('#f-consent .choice').forEach(function(el) {
+  el.addEventListener('click', function() {
+
+    document.querySelectorAll('#f-consent .choice').forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+    selectedConsent = el.dataset.value;
+    hideError('err-consent');
+    markInvalid(document.getElementById('f-consent'), false, 'invalid-group');
+  });
+});
+
+['f-phone-1', 'f-phone-2'].forEach(function(id) {
+  const el = document.getElementById(id);
+  el.addEventListener('input', function() {
+    el.value = el.value.replace(/[^0-9]/g, '').slice(0, 4);
+    markInvalid(document.getElementById('f-phone-1'), false);
+    markInvalid(document.getElementById('f-phone-2'), false);
+  });
+});
+
+['f-name', 'f-region', 'f-pin'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', function() {
+    markInvalid(this, false);
+  });
+});
+
+function showError(id) { document.getElementById(id).style.display = 'block'; }
+function hideError(id) { document.getElementById(id).style.display = 'none'; }
+
+async function fetchAllEntries() {
+  const list = await window.storage.list('entry:', true);
+  const keys = (list && list.keys) ? list.keys : [];
+  const pairs = [];
+  for (const key of keys) {
+    try {
+
+      const r = await window.storage.get(key, true);
+      if (r && r.value) pairs.push([key, JSON.parse(r.value)]);
+    } catch (e) {}
   }
-  if(st.pageDelta >= 1){
-    return { cls: 'status-ahead', text: `계획보다 ${pages}페이지 앞서 있어요.`, subText: '이 흐름이면 기한 전에 끝나겠어요.' };
-  }
-  if(st.pageDelta <= -1){
-    return { cls: 'status-behind', text: `계획보다 ${pages}페이지, 약 ${days.toFixed(1)}일 뒤처졌어요.`, subText: '오늘 목표에 조금만 더 얹어볼까요?' };
-  }
-  return { cls: 'status-ontrack', text: '계획한 속도에 정확히 맞춰 가고 있어요.', subText: '' };
+  pairs.sort(function(a, b) { return (a[1].ts || 0) - (b[1].ts || 0); });
+  return pairs;
 }
 
-function renderAllGoals(){
-  $('todayDateLabel').textContent = koreanDateLabel(todayUTC());
+function markInvalid(el, bad, cls) {
+  cls = cls || 'invalid-border';
+  if (bad) el.classList.add(cls); else el.classList.remove(cls);
+}
 
-  const start = toDate(plan.startDate);
-  const end = toDate(plan.endDate);
-  const totalDays = diffDays(start, end) + 1;
-  const today = todayUTC();
-  let dayCountText;
-  if(today < start){
-    dayCountText = `시작 D-${diffDays(today, start)}`;
-  } else {
-    const dayNumber = Math.min(diffDays(start, today) + 1, totalDays);
-    dayCountText = `${dayNumber}일째 / 총 ${totalDays}일`;
+document.getElementById('submit-btn').addEventListener('click', async function() {
+  const name = document.getElementById('f-name').value.trim();
+  const region = document.getElementById('f-region').value.trim();
+  const phone1 = document.getElementById('f-phone-1').value.trim();
+  const phone2 = document.getElementById('f-phone-2').value.trim();
+  const pin = document.getElementById('f-pin').value.trim();
+
+  let ok = true;
+  const nameBad = !name;
+  if (nameBad) { showError('err-name'); ok = false; } else { hideError('err-name'); }
+  markInvalid(document.getElementById('f-name'), nameBad);
+
+  const phoneBad = phone1.length !== 4 || phone2.length !== 4;
+  if (phoneBad) { showError('err-phone'); ok = false; } else { hideError('err-phone'); }
+  markInvalid(document.getElementById('f-phone-1'), phoneBad);
+  markInvalid(document.getElementById('f-phone-2'), phoneBad);
+
+  const regionBad = !region;
+  if (regionBad) { showError('err-region'); ok = false; } else { hideError('err-region'); }
+
+  markInvalid(document.getElementById('f-region'), regionBad);
+
+  const remarkBad = !selectedRemark;
+  markInvalid(document.getElementById('f-remark'), remarkBad, 'invalid-group');
+
+  const consentBad = selectedConsent !== '예';
+  if (consentBad) { showError('err-consent'); ok = false; } else { hideError('err-consent'); }
+  markInvalid(document.getElementById('f-consent'), consentBad, 'invalid-group');
+
+  const pinBad = pin.length < 4;
+  if (pinBad) { showError('err-pin'); ok = false; } else { hideError('err-pin'); }
+  markInvalid(document.getElementById('f-pin'), pinBad);
+
+  let result = readBlocks(fBlocksContainer);
+  if (result.programs.length === 0) {
+    result = readBlocks(fBlocksContainer, true);
   }
-  $('dayCountLabel').textContent = dayCountText;
+  if (result.hasError || result.programs.length === 0) return;
+  if (!ok) return;
 
-  const repeats = plan.repeats || 1;
+  const entry = {
+    name: name,
+    phone: '010-' + phone1 + '-' + phone2,
+    region: region,
+    consent: selectedConsent,
+    remark: selectedRemark || '',
+    pin: pin,
+    programs: result.programs,
+    ts: Date.now()
+  };
 
-  $('allGoalsList').innerHTML = plan.subjects.map(subject => {
-    const st = subjectStats(subject);
-    const repeatNote = repeats > 1 ? ` (${subject.totalPages}p × ${repeats}회독)` : '';
-    const todayStr = fmt(todayUTC());
-    const doneToday = Number((logs[subject.id] || {})[todayStr]) || 0;
-    const achieved = st.remainingPages === 0 || (st.todayGoal > 0 && doneToday >= st.todayGoal);
+  const btn = document.getElementById('submit-btn');
 
-    let goalNum, goalRange, goalLabel;
-    if(st.remainingPages === 0){
-      goalNum = '0'; goalRange = ''; goalLabel = `${subject.name} 완료`;
-    } else if(st.todayGoal === 0){
-      goalNum = '0'; goalRange = ''; goalLabel = `${subject.name} · 오늘은 쉬어가는 날이에요`;
-    } else {
-      goalNum = st.todayGoal;
-      goalRange = todayGoalRangeText(subject, st);
-      goalLabel = `${subject.name} · 남은 ${st.remainingPages}페이지${repeatNote}`;
-    }
-    const status = statusMessage(st, subject.name);
-    const currentRoundPos = st.doneToDate > 0 ? bookPosition(st.doneToDate, subject.totalPages) : null;
-    const currentPageDisplay = currentRoundPos ? `${currentRoundPos.page}p` : '0p';
-    // Use the SAME adaptive target as the "1회독 71p ~ 78p" range below, not the flat
-    // original-plan pace — otherwise the two "목표" numbers on this card disagree.
-    const todayTargetForDisplay = st.remainingPages === 0 ? st.target : st.todayTargetCumulative;
-    const idealPos = todayTargetForDisplay > 0 ? bookPosition(todayTargetForDisplay, subject.totalPages) : null;
-    const idealPageDisplay = idealPos ? `${idealPos.page}p` : '0p';
-    const achieveRatio = todayTargetForDisplay > 0 ? (st.doneToDate / todayTargetForDisplay) * 100 : (st.doneToDate > 0 ? 100 : 0);
-    const todayAchievedPct = st.remainingPages === 0 ? 100 : (st.todayGoal > 0 ? Math.min(100, (doneToday / st.todayGoal) * 100) : 0);
-    const todayAchievedPctDisplay = st.todayGoal > 0 ? Math.round((doneToday / st.todayGoal) * 100) : (st.remainingPages === 0 ? 100 : 0);
+  btn.disabled = true;
+  btn.textContent = '제출 중…';
 
-    const todayStr2 = fmt(todayUTC());
-    const todayEntryDelta = (logs[subject.id] || {})[todayStr2];
-    const miniLogHtml = (todayEntryDelta !== undefined && todayEntryDelta > 0) ? (() => {
-      const date = todayStr2;
-      const delta = todayEntryDelta;
-      const cumulativeAt = cumulativeBefore(subject.id, date) + (Number(delta) || 0);
-      const pos = cumulativeAt > 0 ? bookPosition(cumulativeAt, subject.totalPages) : null;
-      const reachedLabel = pos ? `${repeats > 1 ? pos.round + '회독 ' : ''}${pos.page}p까지` : '기록 없음';
-      return `<div class="log-item"><span class="d">${date}</span><span>${reachedLabel} <span style="color:var(--ink-soft);">(+${delta}p)</span></span>
-        <span class="log-item-actions">
-          <button type="button" class="link-btn mini-log-edit" data-subject-id="${subject.id}" data-date="${date}" data-page="${pos ? pos.page : ''}">수정</button>
-          <button type="button" class="danger-text mini-log-delete" data-subject-id="${subject.id}" data-date="${date}">삭제</button>
-        </span></div>`;
-    })() : `<div style="color:var(--ink-soft); font-size:12px; padding:4px 2px;">오늘 기록이 아직 없어요.</div>`;
+  try {
+    const key = 'entry:' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    const saveResult = await window.storage.set(key, JSON.stringify(entry), true);
+    if (!saveResult) throw new Error('저장 실패');
+    document.getElementById('form-card').style.display = 'none';
+    document.getElementById('thanks-card').style.display = 'block';
+  } catch (e) {
+    alert('제출 중 문제가 발생했어요. 다시 시도해 주세요.');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '제출하기';
+  }
+});
 
-    const pastEntries = Object.entries(logs[subject.id] || {})
-      .filter(([date]) => date !== todayStr2)
-      .sort((a,b) => b[0].localeCompare(a[0]));
-    const pastLogHtml = pastEntries.length ? pastEntries.map(([date, delta]) => {
-      const cumulativeAt = cumulativeBefore(subject.id, date) + (Number(delta) || 0);
-      const pos = cumulativeAt > 0 ? bookPosition(cumulativeAt, subject.totalPages) : null;
-      const reachedLabel = pos ? `${repeats > 1 ? pos.round + '회독 ' : ''}${pos.page}p까지` : '기록 없음';
-      return `<div class="log-item"><span class="d">${date}</span><span>${reachedLabel} <span style="color:var(--ink-soft);">(+${delta}p)</span></span>
-        <span class="log-item-actions">
-          <button type="button" class="link-btn mini-log-edit" data-subject-id="${subject.id}" data-date="${date}" data-page="${pos ? pos.page : ''}">수정</button>
-          <button type="button" class="danger-text mini-log-delete" data-subject-id="${subject.id}" data-date="${date}">삭제</button>
-        </span></div>`;
-    }).join('') : `<div style="color:var(--ink-soft); font-size:12px; padding:4px 2px;">지난 기록이 없어요.</div>`;
+document.getElementById('again-btn').addEventListener('click', function() {
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-region').value = '';
+  document.getElementById('f-pin').value = '';
+  document.getElementById('f-phone-1').value = '';
+  document.getElementById('f-phone-2').value = '';
+  hideError('err-pin');
+  hideError('err-name');
+  hideError('err-region');
+  hideError('err-phone');
+  hideError('err-consent');
+  document.querySelectorAll('#f-remark .choice').forEach(function(c) { c.classList.remove('selected'); });
+  document.querySelectorAll('#f-consent .choice').forEach(function(c) { c.classList.remove('selected'); });
+  ['f-name', 'f-region', 'f-pin', 'f-phone-1', 'f-phone-2'].forEach(function(id) {
 
-    return `
-      <div class="subject-progress-block ${achieved ? 'goal-achieved' : ''}">
-        ${achieved ? '<div class="goal-achieved-badge">✓ 오늘 목표 달성!</div>' : ''}
-        <div class="spb-name-row">
-          <span class="spb-name">${subject.name}</span>
-          <span class="spb-current-page"><span class="spb-page-label">현재</span> ${currentPageDisplay} <span class="spb-page-label">목표</span> ${idealPageDisplay}<span class="spb-achieve-rate">(${achieveRatio.toFixed(0)}%)</span></span>
-        </div>
-        <div class="goal-header">
-          <div class="goal-header-text">
-            <div class="goal-num mono" style="font-size:36px;">${goalNum}<span style="font-size:16px; font-weight:500;">p</span></div>
-            <div class="goal-range" style="font-size:20px;">${goalRange}</div>
-          </div>
-          <div class="goal-pct-ring" style="--pct:${todayAchievedPct};" title="오늘 목표 달성률">
-            <span>${todayAchievedPctDisplay}%</span>
-          </div>
-        </div>
-        <div class="goal-label">${goalLabel}</div>
-        <div class="status-line ${status.cls}">${status.text}${status.subText ? `<br><span class="status-subtext">${status.subText}</span>` : ''}</div>
-        <div class="log-form-inline">
-          <input type="number" class="reach-input" data-subject-id="${subject.id}" min="1" max="${subject.totalPages}" placeholder="도달 페이지">
-          <button type="button" class="save-reach-btn" data-subject-id="${subject.id}">기록</button>
-        </div>
-        <div class="mini-log-list">${miniLogHtml}</div>
-        ${pastEntries.length ? `
-          <button type="button" class="link-btn past-log-toggle" style="margin-top:8px;">지난 기록 보기 (${pastEntries.length})</button>
-          <div class="mini-log-list past-log-list hidden">${pastLogHtml}</div>
-        ` : ''}
-      </div>`;
-  }).join('');
-}
+    markInvalid(document.getElementById(id), false);
+  });
+  markInvalid(document.getElementById('f-remark'), false, 'invalid-group');
+  markInvalid(document.getElementById('f-consent'), false, 'invalid-group');
+  selectedRemark = null;
+  selectedConsent = null;
+  fBlocksContainer.innerHTML = '';
+  addBlock(fBlocksContainer);
+  document.getElementById('thanks-card').style.display = 'none';
+  document.getElementById('form-card').style.display = 'block';
+});
 
-// ---------- view switch (진도율 / 복습 체크리스트) ----------
-$('viewProgressBtn').onclick = () => {
-  $('viewProgressBtn').classList.add('active');
-  $('viewReviewBtn').classList.remove('active');
-  $('progressTabContent').classList.remove('hidden');
-  $('reviewTabContent').classList.add('hidden');
-};
-$('viewReviewBtn').onclick = () => {
-  $('viewReviewBtn').classList.add('active');
-  $('viewProgressBtn').classList.remove('active');
-  $('reviewTabContent').classList.remove('hidden');
-  $('progressTabContent').classList.add('hidden');
-  renderReviewChecklist();
-  renderReviewFullGrid();
-  renderSummaryStats();
-};
+document.getElementById('mine-lookup-btn').addEventListener('click', async function() {
+  const name = document.getElementById('m-name').value.trim();
+  const pin = document.getElementById('m-pin').value.trim();
+  hideError('err-mine');
+  document.getElementById('mine-results').innerHTML = '';
+  if (!name || !pin) { showError('err-mine'); return; }
 
-// ---------- 1-4-7-14 복습 체크리스트 ----------
-const REVIEW_OFFSETS = [1, 4, 7, 14];
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = '조회 중…';
+  try {
+    const pairs = await fetchAllEntries();
+    const mine = pairs.filter(function(p) {
+      return p[1].name === name && p[1].pin === pin;
+    });
+    if (mine.length === 0) { showError('err-mine'); return; }
+    renderMine(mine);
+  } catch (e) {
+    alert('조회 중 문제가 발생했어요.');
+    console.error(e);
 
-// Computes the page range a subject was SCHEDULED to cover on a given date,
-// based on the original flat daily plan (target / totalDays) — independent of
-// whether the person actually studied that day or not.
-function plannedRangeForDate(subject, date){
-  const start = toDate(plan.startDate);
-  const end = toDate(plan.endDate);
-  if(date < start || date > end) return null; // outside the plan period
-  const totalDays = diffDays(start, end) + 1;
-  const dayIndex = diffDays(start, date); // 0-indexed day of the plan
-  const target = subjectTarget(subject);
-  const cumBefore = Math.round(target * dayIndex / totalDays);
-  const cumAfter = Math.round(target * (dayIndex + 1) / totalDays);
-  if(cumAfter <= cumBefore) return null; // rounds to zero planned pages that day
-  const startPos = bookPosition(cumBefore + 1, subject.totalPages);
-  const endPos = bookPosition(Math.min(cumAfter, target), subject.totalPages);
-  return { startPos, endPos };
-}
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '내 항목 조회';
+  }
+});
 
-function renderReviewChecklist(){
-  const today = todayUTC();
-  const todayStr = fmt(today);
-  const repeats = plan.repeats || 1;
-  $('reviewDateLabel').textContent = koreanDateLabel(today);
+function renderMine(pairs) {
+  const container = document.getElementById('mine-results');
+  container.innerHTML = '';
+  pairs.forEach(function(pair) {
+    const key = pair[0];
+    const e = pair[1];
+    const card = document.createElement('div');
+    card.className = 'card mine-entry-card';
+    card.dataset.key = key;
 
-  $('reviewChecklist').innerHTML = REVIEW_OFFSETS.map(offset => {
-    const sourceDate = new Date(today); sourceDate.setUTCDate(sourceDate.getUTCDate() - offset);
-    const sourceLabel = koreanDateLabel(sourceDate);
+    card.innerHTML =
+      '<div class="field"><label>성명</label><input type="text" class="m-e-name" value="' + escapeHtml(e.name) + '"></div>' +
+      '<div class="field"><label>휴대폰번호</label><div class="phone-row">' +
+        '<input type="text" value="010" disabled class="phone-fixed">' +
+        '<span>-</span>' +
+        '<input type="text" class="m-e-phone-1" inputmode="numeric" maxlength="4" value="' + escapeHtml((e.phone || '').split('-')[1] || '') + '">' +
+        '<span>-</span>' +
+        '<input type="text" class="m-e-phone-2" inputmode="numeric" maxlength="4" value="' + escapeHtml((e.phone || '').split('-')[2] || '') + '">' +
+      '</div></div>' +
+      '<div class="field"><label>소속시군</label><input type="text" class="m-e-region" value="' + escapeHtml(e.region || '') + '" placeholder="예: OO시 / OO군"></div>' +
+      '<div class="field"><label>치유농업사 취득연도</label><div class="choice-row m-e-remark">' +
+        ['2024','2025','2026'].map(function(y) {
+          return '<div class="choice' + (y === e.remark ? ' selected' : '') + '" data-value="' + y + '">' + y + '</div>';
+        }).join('') +
+      '</div></div>' +
+      '<div class="m-e-blocks"></div>' +
 
-    const items = plan.subjects
-      .map(s => ({ s, range: plannedRangeForDate(s, sourceDate) }))
-      .filter(x => x.range !== null);
+      '<button type="button" class="add-block-btn m-e-add">+ 활동실적 추가</button>' +
+      '<button class="btn m-e-save" style="margin-top:6px;">수정 저장</button>';
 
-    const itemsHtml = items.length ? items.map(({ s, range }) => {
-      const roundTag = (r) => repeats > 1 ? `${r}회독 ` : '';
-      let pageLabel;
-      if(range.startPos.round === range.endPos.round){
-        pageLabel = `${roundTag(range.startPos.round)}${range.startPos.page}p ~ ${range.endPos.page}p`;
-      } else {
-        pageLabel = `${roundTag(range.startPos.round)}${range.startPos.page}p ~ ${s.totalPages}p 이어서 ${roundTag(range.endPos.round)}1p ~ ${range.endPos.page}p`;
+    container.appendChild(card);
+
+    card.querySelectorAll('.m-e-phone-1, .m-e-phone-2').forEach(function(el) {
+      el.addEventListener('input', function() {
+        el.value = el.value.replace(/[^0-9]/g, '').slice(0, 4);
+      });
+    });
+
+    card.querySelectorAll('.m-e-remark .choice').forEach(function(el) {
+      el.addEventListener('click', function() {
+        card.querySelectorAll('.m-e-remark .choice').forEach(function(c) { c.classList.remove('selected'); });
+        el.classList.add('selected');
+      });
+    });
+
+    const blocksContainer = card.querySelector('.m-e-blocks');
+    const programs = (e.programs && e.programs.length) ? e.programs : [{ task: e.task || '', type: e.type || '', period: e.period || '' }];
+    programs.forEach(function(p) {
+      const parts = (p.period || '').split(' ~ ');
+      addBlock(blocksContainer, { task: p.task, type: p.type, orgType: p.orgType || '', orgName: p.orgName || '', start: parts[0] || '', end: parts[1] || '', count: p.count || '', participants: p.participants || '', revenue: p.revenue || '', effect: p.effect || '' });
+    });
+
+    card.querySelector('.m-e-add').addEventListener('click', function() {
+      addBlock(blocksContainer);
+    });
+
+    card.querySelector('.m-e-save').addEventListener('click', async function() {
+      const name = card.querySelector('.m-e-name').value.trim();
+      const phone1 = card.querySelector('.m-e-phone-1').value.trim();
+
+      const phone2 = card.querySelector('.m-e-phone-2').value.trim();
+      const region = card.querySelector('.m-e-region').value.trim();
+      const remarkSel = card.querySelector('.m-e-remark .choice.selected');
+      const remark = remarkSel ? remarkSel.dataset.value : '';
+
+      let result = readBlocks(blocksContainer);
+      if (result.programs.length === 0) {
+        result = readBlocks(blocksContainer, true);
       }
-      const key = `${todayStr}_${offset}_${s.id}`;
-      const checked = !!reviewChecks[key];
-      return `
-        <div class="review-item ${checked ? 'checked' : ''}">
-          <input type="checkbox" id="rc_${key}" data-key="${key}" ${checked ? 'checked' : ''}>
-          <label for="rc_${key}">${s.name} — ${pageLabel}</label>
-        </div>`;
-    }).join('') : `<div class="review-empty">그날은 진도 구간이 없어요.</div>`;
+      if (result.hasError || result.programs.length === 0) {
+        return;
+      }
+      if (!name) {
+        alert('성명은 비워둘 수 없어요.');
+        return;
+      }
+      if (phone1.length !== 4 || phone2.length !== 4) {
+        alert('휴대폰번호를 정확히 입력해 주세요.');
+        return;
+      }
+      if (!region) {
+        alert('소속시군은 비워둘 수 없어요.');
+        return;
+      }
 
-    return `
-      <div>
-        <div class="review-group-title">${offset}일 전 <span class="rd">(${sourceLabel})</span></div>
-        ${itemsHtml}
-      </div>`;
-  }).join('');
+      const updated = {
+        name: name,
+        phone: '010-' + phone1 + '-' + phone2,
+        region: region,
+        consent: e.consent,
+        remark: remark,
+        pin: e.pin,
 
-  [...document.querySelectorAll('#reviewChecklist input[type=checkbox]')].forEach(cb => {
-    cb.onchange = async () => {
-      const key = cb.dataset.key;
-      reviewChecks[key] = cb.checked;
-      await saveReviewChecks();
-      renderReviewChecklist();
-      renderReviewFullGrid();
-      renderSummaryStats();
+        programs: result.programs,
+        ts: e.ts
+      };
+
+      const btn = this;
+      btn.disabled = true;
+      btn.textContent = '저장 중…';
+      try {
+        const saveResult = await window.storage.set(key, JSON.stringify(updated), true);
+        if (!saveResult) throw new Error('저장 실패');
+        btn.textContent = '저장됐어요';
+        setTimeout(function() { btn.textContent = '수정 저장'; btn.disabled = false; }, 1500);
+      } catch (err) {
+        alert('저장 중 문제가 발생했어요.');
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = '수정 저장';
+      }
+    });
+  });
+}
+
+function openAdminTab() {
+  document.getElementById('err-admin').style.display = 'none';
+  document.getElementById('admin-pin-input').value = '';
+
+  if (adminUnlocked) {
+    document.getElementById('admin-gate-card').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadResults();
+    return;
+  }
+
+  document.getElementById('admin-gate-card').style.display = 'block';
+  document.getElementById('admin-content').style.display = 'none';
+}
+
+document.getElementById('admin-submit-btn').addEventListener('click', function() {
+  const pin = document.getElementById('admin-pin-input').value;
+  hideError('err-admin');
+
+  if (pin === ADMIN_PASSWORD) {
+    adminUnlocked = true;
+    document.getElementById('admin-gate-card').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadResults();
+  } else {
+    showError('err-admin');
+  }
+});
+
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('show'); });
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('show');
+    if (tab.dataset.tab === 'admin') openAdminTab();
+  });
+});
+
+document.getElementById('refresh-btn').addEventListener('click', loadResults);
+document.getElementById('download-btn').addEventListener('click', downloadExcel);
+
+let currentEntries = [];
+
+function entryPrograms(e) {
+  return (e.programs && e.programs.length) ? e.programs : [{ task: e.task || '', type: e.type || '', period: e.period || '' }];
+}
+
+const ORG_BUCKETS = [
+  { label: '학생관련', match: ['학생관련 유관기관'] },
+  { label: '노인관련', match: ['노인관련 유관기관'] },
+  { label: '장애인관련', match: ['장애인관련 유관기관'] },
+  { label: '정신건강관련', match: ['정신건강관련 유관기관'] },
+  { label: '그외', match: ['그외 유관기관', '시군농업기술센터'] }
+];
+
+function bucketForOrgType(orgType) {
+  for (const bucket of ORG_BUCKETS) {
+    if (bucket.match.indexOf(orgType) !== -1) return bucket.label;
+  }
+  return '그외';
+}
+
+function renderSimpleSummary(pairs) {
+  const body = document.getElementById('simple-summary-body');
+  let rowsHtml = '';
+  let count = 0;
+
+  pairs.forEach(function(pair) {
+    const key = pair[0];
+    const e = pair[1];
+    const programs = entryPrograms(e);
+    programs.forEach(function(p, idx) {
+      count++;
+
+      rowsHtml += '<tr>';
+      rowsHtml += '<td>' + escapeHtml(e.region || '') + '</td>';
+      rowsHtml += '<td class="name">' + escapeHtml(e.name) + '</td>';
+      rowsHtml += '<td>' + escapeHtml(p.type || '') + '</td>';
+      rowsHtml += '<td>' + escapeHtml(p.period || '') + '</td>';
+      rowsHtml += '<td>' + escapeHtml(p.task || '').replace(/\n/g, '<br>') + '</td>';
+      rowsHtml += '<td style="text-align:center;">' + escapeHtml(e.remark || '') + '</td>';
+      rowsHtml += '<td style="text-align:center; white-space:nowrap;"><button class="edit-row-btn" data-key="' + escapeHtml(key) + '">수정</button> <button class="delete-row-btn" data-key="' + escapeHtml(key) + '" data-idx="' + idx + '">삭제</button></td>';
+      rowsHtml += '</tr>';
+    });
+  });
+
+  body.innerHTML = count ? rowsHtml : '<tr class="empty-row"><td colspan="7">아직 입력된 실적이 없어요.</td></tr>';
+
+  body.querySelectorAll('.delete-row-btn').forEach(function(btn) {
+    btn.addEventListener('click', async function() {
+      if (!confirm('이 활동실적 한 건을 삭제할까요? 되돌릴 수 없어요.')) return;
+      await deleteProgramFromEntry(btn.dataset.key, parseInt(btn.dataset.idx, 10));
+      loadResults();
+    });
+  });
+
+  body.querySelectorAll('.edit-row-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      adminEditEntry(btn.dataset.key);
+    });
+  });
+}
+
+async function deleteProgramFromEntry(key, idx) {
+  try {
+    const r = await window.storage.get(key, true);
+
+    if (!r || !r.value) return;
+    const entry = JSON.parse(r.value);
+    const programs = entryPrograms(entry).slice();
+    programs.splice(idx, 1);
+    if (programs.length === 0) {
+      await window.storage.delete(key, true);
+    } else {
+      entry.programs = programs;
+      await window.storage.set(key, JSON.stringify(entry), true);
+    }
+  } catch (e) {
+    alert('삭제 중 문제가 발생했어요.');
+    console.error(e);
+  }
+}
+
+async function deleteEntry(key) {
+  try {
+    await window.storage.delete(key, true);
+  } catch (e) {
+    alert('삭제 중 문제가 발생했어요.');
+    console.error(e);
+  }
+}
+
+async function adminEditEntry(key) {
+  const panel = document.getElementById('admin-edit-panel');
+  panel.innerHTML = '<div class="card">불러오는 중…</div>';
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  let entry;
+
+  try {
+    const r = await window.storage.get(key, true);
+    if (!r || !r.value) { panel.innerHTML = '<div class="card">항목을 찾을 수 없어요.</div>'; return; }
+    entry = JSON.parse(r.value);
+  } catch (e) {
+    panel.innerHTML = '<div class="card">불러오기에 실패했어요.</div>';
+    return;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML =
+    '<p style="font-weight:700; color:var(--soil-dark); margin:0 0 14px;">' + escapeHtml(entry.name) + '님 실적 수정 (관리자)</p>' +
+    '<div class="field"><label>성명</label><input type="text" class="ae-name" value="' + escapeHtml(entry.name || '') + '"></div>' +
+    '<div class="field"><label>휴대폰번호</label><div class="phone-row">' +
+      '<input type="text" value="010" disabled class="phone-fixed">' +
+      '<span>-</span>' +
+      '<input type="text" class="ae-phone-1" inputmode="numeric" maxlength="4" value="' + escapeHtml((entry.phone || '').split('-')[1] || '') + '">' +
+      '<span>-</span>' +
+      '<input type="text" class="ae-phone-2" inputmode="numeric" maxlength="4" value="' + escapeHtml((entry.phone || '').split('-')[2] || '') + '">' +
+    '</div></div>' +
+    '<div class="field"><label>소속시군</label><input type="text" class="ae-region" value="' + escapeHtml(entry.region || '') + '" placeholder="예: OO시 / OO군"></div>' +
+    '<div class="field"><label>치유농업사 취득연도</label><div class="choice-row ae-remark">' +
+      ['2024','2025','2026'].map(function(y) {
+        return '<div class="choice' + (y === entry.remark ? ' selected' : '') + '" data-value="' + y + '">' + y + '</div>';
+      }).join('') +
+    '</div></div>' +
+    '<div class="ae-blocks"></div>' +
+    '<button type="button" class="add-block-btn ae-add">+ 활동실적 추가</button>' +
+    '<div class="btn-row"><button class="btn ae-cancel" style="background:#fff; border:1px solid var(--line); color:var(--ink-soft);">취소</button><button class="btn ae-save">저장</button></div>';
+
+  panel.innerHTML = '';
+
+  panel.appendChild(card);
+
+  card.querySelectorAll('.ae-phone-1, .ae-phone-2').forEach(function(el) {
+    el.addEventListener('input', function() {
+      el.value = el.value.replace(/[^0-9]/g, '').slice(0, 4);
+    });
+  });
+  card.querySelectorAll('.ae-remark .choice').forEach(function(el) {
+    el.addEventListener('click', function() {
+      card.querySelectorAll('.ae-remark .choice').forEach(function(c) { c.classList.remove('selected'); });
+      el.classList.add('selected');
+    });
+  });
+
+  const blocksContainer = card.querySelector('.ae-blocks');
+  entryPrograms(entry).forEach(function(p) {
+    const parts = (p.period || '').split(' ~ ');
+    addBlock(blocksContainer, { task: p.task, type: p.type, orgType: p.orgType || '', orgName: p.orgName || '', start: parts[0] || '', end: parts[1] || '', count: p.count || '', participants: p.participants || '', revenue: p.revenue || '', effect: p.effect || '' });
+  });
+  card.querySelector('.ae-add').addEventListener('click', function() {
+    addBlock(blocksContainer);
+  });
+
+  card.querySelector('.ae-cancel').addEventListener('click', function() {
+    panel.style.display = 'none';
+    panel.innerHTML = '';
+  });
+
+  card.querySelector('.ae-save').addEventListener('click', async function() {
+    const name = card.querySelector('.ae-name').value.trim();
+    const phone1 = card.querySelector('.ae-phone-1').value.trim();
+    const phone2 = card.querySelector('.ae-phone-2').value.trim();
+
+    const region = card.querySelector('.ae-region').value.trim();
+    const remarkSel = card.querySelector('.ae-remark .choice.selected');
+    const remark = remarkSel ? remarkSel.dataset.value : '';
+
+    let result = readBlocks(blocksContainer);
+    if (result.programs.length === 0) result = readBlocks(blocksContainer, true);
+    if (result.hasError || result.programs.length === 0) return;
+
+    if (!name) { alert('성명은 비워둘 수 없어요.'); return; }
+    if (phone1.length !== 4 || phone2.length !== 4) { alert('휴대폰번호를 정확히 입력해 주세요.'); return; }
+    if (!region) { alert('소속시군은 비워둘 수 없어요.'); return; }
+
+    const updated = {
+      name: name,
+      phone: '010-' + phone1 + '-' + phone2,
+      region: region,
+      consent: entry.consent,
+      remark: remark,
+      pin: entry.pin,
+      programs: result.programs,
+      ts: entry.ts
     };
+
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = '저장 중…';
+    try {
+      const saveResult = await window.storage.set(key, JSON.stringify(updated), true);
+      if (!saveResult) throw new Error('저장 실패');
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+      loadResults();
+
+    } catch (e) {
+      alert('저장 중 문제가 발생했어요.');
+      console.error(e);
+      btn.disabled = false;
+      btn.textContent = '저장';
+    }
   });
 }
 
-function renderReviewFullGrid(){
-  const start = toDate(plan.startDate);
-  const today = todayUTC();
-  const totalDays = diffDays(start, today) + 1;
-  if(totalDays <= 0){
-    $('reviewFullGrid').innerHTML = '';
-    $('reviewOverallRate').innerHTML = '';
-    $('reviewMonthlyRate').innerHTML = '';
+function renderSummary(pairs) {
+  const finalBody = document.getElementById('summary-final-body');
+
+  let finalRows = '';
+  let rowCount = 0;
+
+  pairs.forEach(function(pair) {
+    const key = pair[0];
+    const e = pair[1];
+    const programs = entryPrograms(e);
+    const finalPrograms = programs.filter(function(p) { return parseInt(p.count, 10) >= 2; });
+    const refPrograms = programs.filter(function(p) { return parseInt(p.count, 10) === 1; });
+
+    if (finalPrograms.length === 0 && refPrograms.length === 0) return;
+    rowCount++;
+
+    const buckets = {};
+    ORG_BUCKETS.forEach(function(b) { buckets[b.label] = { names: [], participants: 0 }; });
+    let totalParticipants = 0;
+    let totalRevenue = 0;
+    const orgNames = new Set();
+    let anyEffect = false;
+
+    finalPrograms.forEach(function(p) {
+      const label = bucketForOrgType(p.orgType);
+      if (p.orgName) {
+        buckets[label].names.push(p.orgName);
+        orgNames.add(p.orgName);
+      }
+      const partN = parseInt(p.participants, 10);
+      if (!isNaN(partN)) {
+        buckets[label].participants += partN;
+        totalParticipants += partN;
+      }
+      const revN = parseInt((p.revenue || '').replace(/,/g, ''), 10);
+      if (!isNaN(revN)) totalRevenue += revN;
+      if (p.effect === '예') anyEffect = true;
+    });
+
+    const refNames = [];
+    let refParticipants = 0;
+    refPrograms.forEach(function(p) {
+      if (p.orgName) refNames.push(p.orgName);
+      const partN = parseInt(p.participants, 10);
+      if (!isNaN(partN)) refParticipants += partN;
+    });
+
+    finalRows += '<tr>';
+    finalRows += '<td class="name">' + escapeHtml(e.name) + '</td>';
+    finalRows += '<td>' + escapeHtml(e.phone || '') + '</td>';
+    finalRows += '<td>' + escapeHtml(e.region || '') + '</td>';
+    finalRows += '<td>치유농업사</td>';
+    ORG_BUCKETS.forEach(function(b) {
+      const bucket = buckets[b.label];
+      finalRows += '<td>' + escapeHtml(bucket.names.join(', ')) + '</td>';
+
+      finalRows += '<td style="text-align:center;">' + (bucket.participants || '') + '</td>';
+    });
+    finalRows += '<td style="text-align:center;">' + (orgNames.size || '') + '</td>';
+    finalRows += '<td style="text-align:center;">' + (totalParticipants || '') + '</td>';
+    finalRows += '<td style="text-align:right;">' + (totalRevenue ? totalRevenue.toLocaleString('ko-KR') : '') + '</td>';
+    finalRows += '<td style="text-align:center;">' + (finalPrograms.length ? (anyEffect ? '예' : '아니오') : '') + '</td>';
+    finalRows += '<td>' + escapeHtml(refNames.join(', ')) + '</td>';
+    finalRows += '<td style="text-align:center;">' + (refParticipants || '') + '</td>';
+    finalRows += '<td style="text-align:center; white-space:nowrap;"><button class="edit-row-btn" data-key="' + escapeHtml(key) + '">수정</button> <button class="delete-row-btn" data-key="' + escapeHtml(key) + '">삭제</button></td>';
+    finalRows += '</tr>';
+  });
+
+  finalBody.innerHTML = rowCount ? finalRows : '<tr class="empty-row"><td colspan="21">아직 집계할 실적이 없어요.</td></tr>';
+
+  finalBody.querySelectorAll('.delete-row-btn').forEach(function(btn) {
+    btn.addEventListener('click', async function() {
+      if (!confirm('이 사람이 등록한 실적 전체를 삭제할까요? 되돌릴 수 없어요.')) return;
+      await deleteEntry(btn.dataset.key);
+      loadResults();
+    });
+  });
+
+  finalBody.querySelectorAll('.edit-row-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      adminEditEntry(btn.dataset.key);
+    });
+  });
+}
+
+async function loadResults() {
+  const countEl = document.getElementById('result-count');
+  countEl.textContent = '불러오는 중…';
+
+  const editPanel = document.getElementById('admin-edit-panel');
+  if (editPanel) { editPanel.style.display = 'none'; editPanel.innerHTML = ''; }
+
+  try {
+    const pairs = await fetchAllEntries();
+    currentEntries = pairs.map(function(p) { return p[1]; });
+    countEl.textContent = pairs.length ? ('총 ' + pairs.length + '명') : '총 0건';
+    renderSimpleSummary(pairs);
+    renderSummary(pairs);
+  } catch (e) {
+    countEl.textContent = '불러오기에 실패했어요. 새로고침을 눌러 주세요.';
+    console.error(e);
+  }
+}
+
+function downloadExcel() {
+  if (!currentEntries.length) {
+    alert('다운로드할 자료가 없어요.');
+    return;
+  }
+  if (typeof XLSX === 'undefined') {
+    alert('엑셀 기능을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
     return;
   }
 
-  let totalChecked = 0, totalApplicable = 0;
-  const monthTotals = {}; // "2026-08" -> { checked, applicable }
   const rows = [];
+  currentEntries.forEach(function(e) {
+    const programs = entryPrograms(e);
+    const countByType = {};
+    programs.forEach(function(p) {
+      const n = parseInt(p.count, 10);
+      if (isNaN(n) || !p.type) return;
 
-  for(let i = 0; i < totalDays; i++){
-    const d = new Date(start); d.setUTCDate(d.getUTCDate() + i);
-    const dStr = fmt(d);
-    const monthKey = dStr.slice(0, 7);
-    if(!monthTotals[monthKey]) monthTotals[monthKey] = { checked: 0, applicable: 0 };
+      countByType[p.type] = (countByType[p.type] || 0) + n;
+    });
+    programs.forEach(function(p, idx) {
+      rows.push({
+        '성명': e.name || '',
+        '휴대폰번호': e.phone || '',
+        '소속시군': e.region || '',
+        '실적구분': '실적' + (idx + 1),
+        '구분': p.type || '',
+        '기관유형': p.orgType || '',
+        '기관명': p.orgName || '',
+        '활용기간': p.period || '',
+        '운영회차': p.count || '',
+        '참여자수': p.participants || '',
+        '매출액(원)': p.revenue || '',
+        '효과측정여부': p.effect || '',
+        '프로그램 또는 교육명': p.task || '',
+        '치유농업사 자격증 취득연도': e.remark || '',
+        '총 운영회차(채용)': countByType['채용'] || '',
+        '총 운영회차(프로그램 운영)': countByType['프로그램 운영'] || '',
+        '총 운영회차(교육)': countByType['교육'] || ''
+      });
+    });
+  });
 
-    const cells = REVIEW_OFFSETS.map(offset => {
-      const sourceDate = new Date(d); sourceDate.setUTCDate(sourceDate.getUTCDate() - offset);
-      const applicable = plan.subjects.filter(s => plannedRangeForDate(s, sourceDate) !== null);
-      if(applicable.length === 0) return '<td><div class="rg-cell rg-na" title="해당 없음"></div></td>';
-      const checkedCount = applicable.filter(s => reviewChecks[`${dStr}_${offset}_${s.id}`]).length;
-      totalChecked += checkedCount;
-      totalApplicable += applicable.length;
-      monthTotals[monthKey].checked += checkedCount;
-      monthTotals[monthKey].applicable += applicable.length;
-      const cls = checkedCount === 0 ? 'rg-empty' : (checkedCount === applicable.length ? 'rg-full' : 'rg-partial');
-      return `<td><div class="rg-cell ${cls}" title="${dStr} · ${offset}일 전 (${checkedCount}/${applicable.length})"></div></td>`;
-    }).join('');
+  const finalRows = [];
+  currentEntries.forEach(function(e) {
+    const programs = entryPrograms(e);
+    const finalPrograms = programs.filter(function(p) { return parseInt(p.count, 10) >= 2; });
+    const refPrograms = programs.filter(function(p) { return parseInt(p.count, 10) === 1; });
 
-    const isToday = dStr === fmt(today);
-    rows.push(`<tr class="${isToday ? 'review-row-today' : ''}"><td>${md(dStr)}${isToday ? ' (오늘)' : ''}</td>${cells}</tr>`);
-  }
+    if (finalPrograms.length === 0 && refPrograms.length === 0) return;
 
-  // Most recent date first, since that's what people check back on most.
-  $('reviewFullGrid').innerHTML = rows.reverse().join('');
 
-  const overallPct = totalApplicable > 0 ? Math.round((totalChecked / totalApplicable) * 100) : 0;
-  $('reviewOverallRate').innerHTML = `전체 복습 달성률: <b>${overallPct}%</b> (${totalChecked} / ${totalApplicable})`;
+    const buckets = {};
+    ORG_BUCKETS.forEach(function(b) { buckets[b.label] = { names: [], participants: 0 }; });
+    let totalParticipants = 0;
+    let totalRevenue = 0;
+    const orgNames = new Set();
+    let anyEffect = false;
 
-  const monthKeys = Object.keys(monthTotals).sort().reverse();
-  $('reviewMonthlyRate').innerHTML = monthKeys.map(mk => {
-    const t = monthTotals[mk];
-    const pct = t.applicable > 0 ? Math.round((t.checked / t.applicable) * 100) : 0;
-    const [y, m] = mk.split('-');
-    return `<span class="review-month-badge">${parseInt(m)}월 <b>${pct}%</b> (${t.checked}/${t.applicable})</span>`;
-  }).join('');
-}
-
-function renderSubjectProgressList(){
-  const repeats = plan.repeats || 1;
-  $('subjectProgressList').innerHTML = plan.subjects.map(s => {
-    const st = subjectStats(s);
-    const repeatNote = repeats > 1 ? ` (${s.totalPages}p × ${repeats}회독)` : '';
-    const diff = st.pct - st.idealPct;
-    const diffText = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%p`;
-    const onTrack = st.remainingPages === 0 || diff >= 0;
-    let roundMarks = '';
-    let roundLabels = '';
-    if(repeats > 1){
-      for(let r = 1; r < repeats; r++){
-        roundMarks += `<div class="ruler-round-mark" style="left:${(r / repeats) * 100}%"></div>`;
+    finalPrograms.forEach(function(p) {
+      const label = bucketForOrgType(p.orgType);
+      if (p.orgName) {
+        buckets[label].names.push(p.orgName);
+        orgNames.add(p.orgName);
       }
-      for(let r = 1; r <= repeats; r++){
-        const center = ((r - 0.5) / repeats) * 100;
-        roundLabels += `<span style="left:${center}%">${r}회독</span>`;
+      const partN = parseInt(p.participants, 10);
+      if (!isNaN(partN)) {
+        buckets[label].participants += partN;
+        totalParticipants += partN;
       }
-    }
-    return `
-      <div class="subject-progress-block ${onTrack ? 'spb-ontrack' : ''}">
-        ${onTrack ? `<div class="goal-achieved-badge">${st.remainingPages === 0 ? '✓ 완료!' : '✓ 계획대로 진행 중'}</div>` : ''}
-        <div class="spb-name">${s.name} <span class="spb-pace">· 실적 ${st.pct.toFixed(1)}% / 목표 ${st.idealPct.toFixed(1)}% (${diffText})</span></div>
-        <div class="pct-big"><b>${st.pct.toFixed(1)}%</b> 완료 · ${Math.round(st.doneToDate)} / ${st.target}p${repeatNote}</div>
-        <div class="ruler">
-          <div class="ruler-track">
-            <div class="ruler-fill" style="width:${Math.min(100, st.pct)}%"></div>
-            ${roundMarks}
-            <div class="ruler-ideal-mark" style="left:${Math.min(100, st.idealPct)}%"></div>
-          </div>
-          ${repeats > 1 ? `<div class="ruler-round-labels">${roundLabels}</div>` : `<div class="ruler-ticks"><span>0</span><span>${st.target}p</span></div>`}
-        </div>
-      </div>`;
-  }).join('');
+      const revN = parseInt((p.revenue || '').replace(/,/g, ''), 10);
+      if (!isNaN(revN)) totalRevenue += revN;
+      if (p.effect === '예') anyEffect = true;
+    });
+
+    const refNames = [];
+    let refParticipants = 0;
+    refPrograms.forEach(function(p) {
+      if (p.orgName) refNames.push(p.orgName);
+      const partN = parseInt(p.participants, 10);
+      if (!isNaN(partN)) refParticipants += partN;
+    });
+
+
+    const row = {
+      '성명': e.name || '',
+      '휴대폰번호': e.phone || '',
+      '소속시군': e.region || '',
+      '구분': '치유농업사'
+    };
+    ORG_BUCKETS.forEach(function(b) {
+      row[b.label + ' 기관명'] = buckets[b.label].names.join(', ');
+      row[b.label + ' 참여자수'] = buckets[b.label].participants || '';
+    });
+    row['유관기관개수'] = orgNames.size || '';
+    row['참여자합계'] = totalParticipants || '';
+    row['매출액(원)'] = totalRevenue || '';
+    row['효과측정여부'] = finalPrograms.length ? (anyEffect ? '예' : '아니오') : '';
+    row['1회실적 기관명(참고용)'] = refNames.join(', ');
+    row['1회실적 참여자수(참고용)'] = refParticipants || '';
+    finalRows.push(row);
+  });
+
+  const simpleRows = [];
+  currentEntries.forEach(function(e) {
+    entryPrograms(e).forEach(function(p) {
+      simpleRows.push({
+        '시군': e.region || '',
+        '성명': e.name || '',
+        '구분': p.type || '',
+        '활용기간': p.period || '',
+        '프로그램 또는 교육명': p.task || '',
+        '치유농업사 취득연도': e.remark || ''
+      });
+    });
+  });
+
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{ wch: 10 }, { wch: 14 }, { wch: 12 }, { wch: 8 }, { wch: 14 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 40 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 10 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '활용실적');
+
+  const wsSimple = XLSX.utils.json_to_sheet(simpleRows.length ? simpleRows : [{ '안내': '아직 입력된 실적이 없어요.' }]);
+  XLSX.utils.book_append_sheet(wb, wsSimple, '치유농업사_활용실적');
+
+  const wsFinal = XLSX.utils.json_to_sheet(finalRows.length ? finalRows : [{ '안내': '아직 집계할 실적이 없어요.' }]);
+  XLSX.utils.book_append_sheet(wb, wsFinal, '집계표');
+
+  const today = new Date();
+  const stamp = today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
+  XLSX.writeFile(wb, '치유농업사_활용실적_' + stamp + '.xlsx');
 }
-
-const SUBJECT_COLORS = ['#2F6F4F', '#D98E3B', '#3B6FA0', '#B0568C', '#5C8A3A', '#A0522D', '#4A7A8C', '#8A5FA0'];
-
-function renderTodayProgressList(){
-  const todayStr = fmt(todayUTC());
-  const repeats = plan.repeats || 1;
-  $('todayProgressList').innerHTML = plan.subjects.map((s, i) => {
-    const st = subjectStats(s);
-    const doneToday = Number((logs[s.id] || {})[todayStr]) || 0;
-    const color = SUBJECT_COLORS[i % SUBJECT_COLORS.length];
-    let pct;
-    if(st.remainingPages === 0){
-      pct = 100;
-    } else if(st.todayGoal === 0){
-      pct = doneToday > 0 ? 100 : 0;
-    } else {
-      pct = Math.min(100, (doneToday / st.todayGoal) * 100);
-    }
-
-    const ratio = st.idealPct > 0 ? (st.pct / st.idealPct) * 100 : (st.pct > 0 ? 100 : 0);
-    const achieved = pct >= 100;
-
-    return `
-      <div class="today-compact-row ${achieved ? 'tcr-achieved' : ''}">
-        <span class="tcr-name">${s.name}${achieved ? ' <span class="tcr-check">✓</span>' : ''}</span>
-        <div class="tcr-metric">
-          <span class="tcr-label">오늘</span>
-          <div class="tcr-bar-track"><div class="tcr-bar-fill" style="width:${pct}%; background:${achieved ? '#FFB300' : color};"></div></div>
-          <span class="tcr-pct">${pct.toFixed(0)}%</span>
-        </div>
-        <div class="tcr-metric">
-          <span class="tcr-label">계획대비</span>
-          <div class="tcr-bar-track"><div class="tcr-bar-fill" style="width:${Math.min(100, ratio)}%; background:${color}; opacity:0.55;"></div></div>
-          <span class="tcr-pct">${ratio.toFixed(0)}%</span>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-async function saveReachedPage(subjectId, reachedPage){
-  const date = $('logDate').value;
-  const subject = plan.subjects.find(s => s.id === subjectId);
-  if(!subject) return;
-  if(!date){ alert('날짜를 선택하세요.'); return; }
-  if(isNaN(reachedPage) || reachedPage < 1 || reachedPage > subject.totalPages){
-    alert(`1 ~ ${subject.totalPages} 사이의 페이지 번호를 입력하세요.`);
-    return;
-  }
-  const prevCumulative = cumulativeBefore(subjectId, date);
-  const newCumulative = reachedPageToCumulative(reachedPage, subject.totalPages, prevCumulative);
-  const delta = Math.max(0, newCumulative - prevCumulative);
-
-  if(!logs[subjectId]) logs[subjectId] = {};
-  logs[subjectId][date] = delta;
-  await saveLogs();
-  renderAllGoals();
-  renderSubjectProgressList();
-  renderTodayProgressList();
-  renderReviewChecklist();
-  renderReviewFullGrid();
-  renderSummaryStats();
-}
-
-$('allGoalsList').addEventListener('click', async (e) => {
-  const saveBtn = e.target.closest('.save-reach-btn');
-  if(saveBtn){
-    const subjectId = saveBtn.dataset.subjectId;
-    const input = document.querySelector(`.reach-input[data-subject-id="${subjectId}"]`);
-    const reachedPage = parseInt(input.value, 10);
-    await saveReachedPage(subjectId, reachedPage);
-    if(input) input.value = '';
-    return;
-  }
-  const delBtn = e.target.closest('.mini-log-delete');
-  if(delBtn){
-    const subjectId = delBtn.dataset.subjectId;
-    const date = delBtn.dataset.date;
-    if(logs[subjectId]) delete logs[subjectId][date];
-    await saveLogs();
-    renderAllGoals();
-    renderSubjectProgressList();
-    renderTodayProgressList();
-    renderReviewChecklist();
-    renderReviewFullGrid();
-    renderSummaryStats();
-    return;
-  }
-  const editBtn = e.target.closest('.mini-log-edit');
-  if(editBtn){
-    const subjectId = editBtn.dataset.subjectId;
-    const date = editBtn.dataset.date;
-    const page = editBtn.dataset.page;
-    $('logDate').value = date;
-    updateLogDateWeekday();
-    const input = document.querySelector(`.reach-input[data-subject-id="${subjectId}"]`);
-    if(input){
-      input.value = page;
-      input.focus();
-    }
-    showToast(`${date} 기록을 수정할 수 있어요. 값을 바꾸고 "기록"을 누르세요.`);
-    return;
-  }
-  const toggleBtn = e.target.closest('.past-log-toggle');
-  if(toggleBtn){
-    const list = toggleBtn.nextElementSibling;
-    if(list) list.classList.toggle('hidden');
-  }
-});
-
-$('allGoalsList').addEventListener('keydown', async (e) => {
-  if(e.key === 'Enter' && e.target.classList.contains('reach-input')){
-    e.preventDefault();
-    const subjectId = e.target.dataset.subjectId;
-    const reachedPage = parseInt(e.target.value, 10);
-    await saveReachedPage(subjectId, reachedPage);
-    e.target.value = '';
-  }
-});
-
-function showDashboard(){
-  $('dashboardView').classList.remove('hidden');
-  renderMotivationQuote();
-  $('logDate').value = fmt(todayUTC());
-  updateLogDateWeekday();
-  $('repeatCountLive').value = plan.repeats || 1;
-  $('startDateLive').value = plan.startDate;
-  $('endDateLive').value = plan.endDate;
-  renderTopBar();
-  renderSummaryStats();
-  renderSubjectEditList();
-  renderSubjectProgressList();
-  renderTodayProgressList();
-  renderAllGoals();
-  renderReviewChecklist();
-  renderReviewFullGrid();
-}
-
-function refreshAll(){
-  renderTopBar();
-  renderSummaryStats();
-  renderSubjectEditList();
-  renderSubjectProgressList();
-  renderTodayProgressList();
-  renderAllGoals();
-  renderReviewChecklist();
-  renderReviewFullGrid();
-}
-
-$('recalcBtn').onclick = async () => {
-  const newStart = $('startDateLive').value;
-  const newEnd = $('endDateLive').value;
-  let repeats = parseInt($('repeatCountLive').value, 10);
-  if(!repeats || repeats < 1) repeats = 1;
-
-  if(!newStart || !newEnd){ alert('시작일과 종료일을 입력하세요.'); return; }
-  if(toDate(newEnd) < toDate(newStart)){ alert('종료일은 시작일보다 빠를 수 없어요.'); return; }
-
-  plan.repeats = repeats;
-  plan.startDate = newStart;
-  plan.endDate = newEnd;
-
-  $('repeatCountLive').value = repeats;
-  await savePlan();
-  refreshAll();
-};
-
-$('applySubjectEditsBtn').onclick = async () => {
-  let hadInvalid = false;
-
-  // 1) apply name changes
-  for(const s of plan.subjects){
-    const nameInput = document.querySelector(`.ser-name-input[data-subject-id="${s.id}"]`);
-    if(!nameInput) continue;
-    const newName = nameInput.value.trim();
-    if(!newName){ nameInput.value = s.name; continue; }
-    if(newName !== s.name && plan.subjects.some(other => other.id !== s.id && other.name === newName)){
-      hadInvalid = true;
-      nameInput.value = s.name;
-      continue;
-    }
-    s.name = newName;
-  }
-
-  // 2) apply all "전체 페이지" changes, but never let it drop below pages already read
-  // (that would make progress read over 100% and make round math wrong for past entries).
-  for(const s of plan.subjects){
-    const pagesInput = document.querySelector(`.ser-pages[data-subject-id="${s.id}"]`);
-    if(!pagesInput) continue;
-    const pages = parseInt(pagesInput.value, 10);
-    if(!pages || pages < 1){ pagesInput.value = s.totalPages; continue; }
-    if(pages !== s.totalPages){
-      const currentDone = subjectStats(s).doneToDate;
-      if(pages * (plan.repeats || 1) < currentDone){
-        hadInvalid = true;
-        pagesInput.value = s.totalPages;
-        continue;
-      }
-    }
-    s.totalPages = pages;
-  }
-
-  // 3) apply "기존 진행 페이지" as a flat baseline on the subject — NOT a dated log entry.
-  // This avoids it showing up as a huge one-day log ("+54p" on a single date) since it
-  // represents progress made before tracking started, not something done on any one day.
-  for(const s of plan.subjects){
-    const existingInput = document.querySelector(`.ser-existing[data-subject-id="${s.id}"]`);
-    if(!existingInput) continue;
-    const raw = existingInput.value;
-    if(raw === ''){ s.baseline = 0; continue; }
-
-    const existingPage = parseInt(raw, 10);
-    if(isNaN(existingPage) || existingPage < 0 || existingPage > s.totalPages){
-      hadInvalid = true;
-      continue;
-    }
-    s.baseline = existingPage;
-  }
-  await savePlan();
-
-  showToast(hadInvalid ? '일부 값은 반영되지 않았어요 (이미 읽은 페이지보다 적거나, 이름이 중복돼요).' : '과목별 설정을 모두 적용했어요.');
-  renderSubjectEditList();
-  renderSubjectProgressList();
-  renderTodayProgressList();
-  renderAllGoals();
-  renderReviewChecklist();
-  renderReviewFullGrid();
-  renderSummaryStats();
-};
-
-// ---------- default plan (used when no saved data exists yet, e.g. storage unavailable) ----------
-function defaultPlan(){
-  return {
-    startDate: '2026-08-23',
-    endDate: '2027-04-30',
-    repeats: 5,
-    subjects: [
-      { id: 's_labor366', name: '노동법', totalPages: 366 },
-      { id: 's_civil585', name: '민법', totalPages: 585 },
-      { id: 's_social470', name: '사회보험법', totalPages: 470 },
-      { id: 's_biz657', name: '경영학원론', totalPages: 657 }
-    ]
-  };
-}
-
-// ---------- init ----------
-(async function init(){
-  await loadState();
-  if(!plan || !plan.subjects || !plan.subjects.length){
-    plan = defaultPlan();
-    plan.subjects.forEach(s => { if(!logs[s.id]) logs[s.id] = {}; });
-    await savePlan();
-    await saveLogs();
-  }
-  activeSubjectId = plan.subjects[0].id;
-  showDashboard();
-})();
 </script>
 </body>
 </html>
-
